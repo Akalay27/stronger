@@ -12,6 +12,7 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { supabase } from "@/lib/supabase";
+import { initDatabase, syncUnsyncedSets } from "@/lib/database";
 import { Session } from "@supabase/supabase-js";
 
 SplashScreen.preventAutoHideAsync();
@@ -28,6 +29,12 @@ export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
+    // Initialize database
+    initDatabase()
+      .then(() => console.log('Database initialized'))
+      .catch(error => console.error('Error initializing database:', error));
+
+    // Get session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
     });
@@ -50,6 +57,10 @@ export default function RootLayout() {
     if (session === null) {
       router.replace("/login");
     } else {
+      // Try to sync any unsynced workout sets when user is authenticated
+      syncUnsyncedSets().catch(error => 
+        console.error('Error syncing workout sets during navigation:', error)
+      );
       router.replace("/(tabs)");
     }
   }, [navState?.key, loaded, session]);
