@@ -12,8 +12,9 @@ import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { supabase } from "@/lib/supabase";
-import { initDatabase, syncUnsyncedSets } from "@/lib/database";
+import { initDatabase, syncUnsyncedWorkouts } from "@/lib/database";
 import { Session } from "@supabase/supabase-js";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -58,9 +59,11 @@ export default function RootLayout() {
       router.replace("/login");
     } else {
       // Try to sync any unsynced workout sets when user is authenticated
-      syncUnsyncedSets().catch((error) =>
-        console.error("Error syncing workout sets during navigation:", error)
-      );
+      syncUnsyncedWorkouts()
+        .then(() => console.log("Unsynced workouts synced"))
+        .catch((error) =>
+          console.error("Error syncing unsynced workouts:", error)
+        );
       router.replace("/(tabs)");
     }
   }, [navState?.key, loaded, session]);
@@ -68,13 +71,15 @@ export default function RootLayout() {
   if (!loaded) return null;
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="login/index" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="login/index" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -11,11 +11,11 @@ import { Spacer } from "@/components/Spacer";
 import { Title } from "@/components/Title";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@rneui/themed";
-import { 
-  initDatabase, 
-  getActiveWorkout, 
+import {
+  initDatabase,
+  getActiveWorkout,
   createWorkout,
-  Workout 
+  Workout,
 } from "@/lib/database";
 import { ThemedView } from "@/components/ThemedView";
 
@@ -70,15 +70,16 @@ export default function WorkoutsScreen() {
     try {
       // Create the workout
       const workoutId = await createWorkout(workoutName.trim());
-      
+
       // Reset the input field
       setWorkoutName("");
       setShowNameInput(false);
-      
+      checkActiveWorkout(); // Refresh active workout state
+
       // Navigate to active workout screen with the workout ID
       router.push({
         pathname: "/active",
-        params: { workoutId }
+        params: { workoutId },
       });
     } catch (error) {
       console.error("Error creating workout:", error);
@@ -90,14 +91,16 @@ export default function WorkoutsScreen() {
     if (activeWorkout) {
       router.push({
         pathname: "/active",
-        params: { workoutId: activeWorkout.id }
+        params: { workoutId: activeWorkout.id },
       });
     }
   };
 
   if (loading) {
     return (
-      <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ThemedView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
         <ActivityIndicator size="large" />
       </ThemedView>
     );
@@ -107,7 +110,7 @@ export default function WorkoutsScreen() {
     <Animated.ScrollView style={{ paddingTop: insets.top + 40 }}>
       <Title type="h1">Workouts</Title>
       <Spacer gap={20} />
-      
+
       {activeWorkout ? (
         <>
           <Title type="h2" lightColor="#888888">
@@ -133,7 +136,7 @@ export default function WorkoutsScreen() {
             Start a new workout
           </Title>
           <Spacer gap={10} />
-          
+
           {showNameInput ? (
             <PrimaryContainer>
               <ThemedText type="subtitle">Name your workout:</ThemedText>
@@ -179,7 +182,7 @@ export default function WorkoutsScreen() {
           )}
         </>
       )}
-      
+
       <Spacer gap={20} />
       <Title type="h2" lightColor="#888888">
         Join a workout
@@ -188,7 +191,9 @@ export default function WorkoutsScreen() {
       <PrimaryContainer>
         <Button
           title="Join Workout"
-          onPress={() => Alert.alert("Coming Soon", "This feature is not yet available.")}
+          onPress={() =>
+            Alert.alert("Coming Soon", "This feature is not yet available.")
+          }
           buttonStyle={{ backgroundColor: "#9C27B0" }}
         />
       </PrimaryContainer>

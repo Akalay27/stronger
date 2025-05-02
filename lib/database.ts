@@ -164,76 +164,13 @@ export const deleteWorkoutSet = async (id: number): Promise<void> => {
   await db.runAsync(`DELETE FROM workout_sets WHERE id = ?`, [id]);
 };
 
-// Sync unsynced sets (legacy)
-export const syncUnsyncedSets = async (): Promise<void> => {
-  if (!(await isOnline())) return;
-
-  const unsyncedSets = await db.getAllAsync<WorkoutSet>(
-    `SELECT * FROM workout_sets WHERE synced = 0`
-  );
-
-  for (const set of unsyncedSets) {
-    try {
-      const user = await supabase.auth.getUser(); // Async method
-      const { data, error } = await supabase
-        .from("workout_sets")
-        .insert({
-          exercise_type: set.exercise_type,
-          weight: set.weight,
-          reps: set.reps,
-          created_at: new Date(set.created_at).toISOString(),
-          user_id: user?.data.user?.id, // Assuming user ID is available
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-
-      await db.runAsync(
-        `UPDATE workout_sets SET synced = 1, supabase_id = ? WHERE id = ?`,
-        [data.id, set.id]
-      );
-    } catch (err) {
-      console.error("Error syncing set with Supabase:", err);
-    }
-  }
-};
-
-// ----- NEW WORKOUT FUNCTIONS -----
-
 // Create a new workout
 export const createWorkout = async (name: string): Promise<number> => {
   const startTime = Date.now();
-  let supabaseId: string | null = null;
-  let synced = false;
-
-  if (await isOnline()) {
-    try {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) {
-        throw new Error("User not authenticated");
-      }
-      const { data, error } = await supabase
-        .from("workouts")
-        .insert({
-          name,
-          start_time: new Date(startTime).toISOString(),
-          active: true,
-          user_id: user.data.user.id,
-        })
-        .select("id")
-        .single();
-      if (error) throw error;
-      supabaseId = data.id;
-      synced = true;
-    } catch (err) {
-      console.error("Error syncing workout with Supabase:", err);
-    }
-  }
-
   const result = await db.runAsync(
-    `INSERT INTO workouts (name, start_time, active, synced, supabase_id)
-     VALUES (?, ?, 1, ?, ?)`,
-    [name, startTime, synced ? 1 : 0, supabaseId]
+    `INSERT INTO workouts (name, start_time, active, synced)
+     VALUES (?, ?, 1, 0)`,
+    [name, startTime]
   );
   return result.lastInsertRowId;
 };
@@ -261,26 +198,122 @@ export const getAllWorkouts = async (): Promise<Workout[]> => {
   }));
 };
 
+export const syncWorkoutById = async (workoutId: number): Promise<void> => {
+  const [workout] = await db.getAllAsync<Workout>(
+    `SELECT * FROM workouts WHERE id = ?`,
+    [workoutId]
+  );
+  if (!workout || workout.synced) return;
+
+  try {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw new Error("Not authenticated");
+
+    // Sync workout
+    const { data: workoutData, error: workoutError } = await supabase
+      .from("workouts")
+      .insert({
+        name: workout.name,
+        start_time: new Date(workout.start_time).toISOString(),
+        active: false,
+        user_id: user.data.user.id,
+      })
+      .select("id")
+      .single();
+    if (workoutError) throw workoutError;
+
+    const supabaseWorkoutId = workoutData.id;
+
+    await db.runAsync(
+      `UPDATE workouts SET synced = 1, supabase_id = ? WHERE id = ?`,
+      [supabaseWorkoutId, workout.id]
+    );
+
+    // Sync exercises
+    const exercises = await getExercisesByWorkout(workout.id);
+    for (const exercise of exercises) {
+      const { data: exerciseData, error: exerciseError } = await supabase
+        .from("exercises")
+        .insert({
+          type: exercise.type,
+          workout_id: supabaseWorkoutId,
+        })
+        .select("id")
+        .single();
+      if (exerciseError) throw exerciseError;
+
+      const supabaseExerciseId = exerciseData.id;
+      await db.runAsync(
+        `UPDATE exercises SET synced = 1, supabase_id = ? WHERE id = ?`,
+        [supabaseExerciseId, exercise.id]
+      );
+
+      // Sync sets
+      const sets = await getSetsByExercise(exercise.id);
+      for (const set of sets) {
+        const { data: setData, error: setError } = await supabase
+          .from("sets")
+          .insert({
+            weight: set.weight,
+            reps: set.reps,
+            completed: set.completed,
+            exercise_id: supabaseExerciseId,
+          })
+          .select("id")
+          .single();
+        if (setError) throw setError;
+
+        await db.runAsync(
+          `UPDATE sets SET synced = 1, supabase_id = ? WHERE id = ?`,
+          [setData.id, set.id]
+        );
+      }
+    }
+  } catch (err) {
+    console.error("Error syncing workout:", err);
+  }
+};
+
 // End a workout (mark as inactive)
 export const endWorkout = async (id: number): Promise<void> => {
   await db.runAsync(`UPDATE workouts SET active = 0 WHERE id = ?`, [id]);
 
+  // Try immediate sync
   if (await isOnline()) {
-    const [workout] = await db.getAllAsync<Workout>(
-      `SELECT * FROM workouts WHERE id = ?`,
-      [id]
-    );
+    await syncWorkoutById(id);
+  }
+};
 
-    if (workout?.supabase_id) {
-      try {
-        const { error } = await supabase
-          .from("workouts")
-          .update({ active: false })
-          .eq("id", workout.supabase_id);
-        if (error) throw error;
-      } catch (err) {
-        console.error("Error updating workout in Supabase:", err);
-      }
+export const deleteWorkout = async (id: number): Promise<void> => {
+  const [workout] = await db.getAllAsync<Workout>(
+    `SELECT * FROM workouts WHERE id = ?`,
+    [id]
+  );
+  if (!workout) return;
+  if (workout.supabase_id && (await isOnline())) {
+    try {
+      const { error } = await supabase
+        .from("workouts")
+        .delete()
+        .eq("id", workout.supabase_id);
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error deleting workout from Supabase:", err);
+    }
+  }
+  await db.runAsync(`DELETE FROM workouts WHERE id = ?`, [id]);
+};
+
+export const syncUnsyncedWorkouts = async (): Promise<void> => {
+  const unsyncedWorkouts = await db.getAllAsync<Workout>(
+    `SELECT * FROM workouts WHERE synced = 0`
+  );
+
+  for (const workout of unsyncedWorkouts) {
+    try {
+      await syncWorkoutById(workout.id);
+    } catch (err) {
+      console.error("Error syncing unsynced workout:", err);
     }
   }
 };
@@ -294,32 +327,6 @@ export const addExercise = async (
 ): Promise<number> => {
   let supabaseId: string | null = null;
   let synced = false;
-
-  if (await isOnline()) {
-    try {
-      const [workout] = await db.getAllAsync<Workout>(
-        `SELECT * FROM workouts WHERE id = ?`,
-        [workoutId]
-      );
-
-      if (workout?.supabase_id) {
-        const { data, error } = await supabase
-          .from("exercises")
-          .insert({
-            type,
-            workout_id: workout.supabase_id,
-          })
-          .select("id")
-          .single();
-        if (error) throw error;
-        supabaseId = data.id;
-        synced = true;
-      }
-    } catch (err) {
-      console.error("Error syncing exercise with Supabase:", err);
-    }
-  }
-
   const result = await db.runAsync(
     `INSERT INTO exercises (type, workout_id, synced, supabase_id)
      VALUES (?, ?, ?, ?)`,
@@ -372,33 +379,6 @@ export const addSet = async (
 ): Promise<number> => {
   let supabaseId: string | null = null;
   let synced = false;
-
-  if (await isOnline()) {
-    try {
-      const [exercise] = await db.getAllAsync<Exercise>(
-        `SELECT * FROM exercises WHERE id = ?`,
-        [exerciseId]
-      );
-
-      if (exercise?.supabase_id) {
-        const { data, error } = await supabase
-          .from("sets")
-          .insert({
-            weight,
-            reps,
-            completed,
-            exercise_id: exercise.supabase_id,
-          })
-          .select("id")
-          .single();
-        if (error) throw error;
-        supabaseId = data.id;
-        synced = true;
-      }
-    } catch (err) {
-      console.error("Error syncing set with Supabase:", err);
-    }
-  }
 
   const result = await db.runAsync(
     `INSERT INTO sets (weight, reps, completed, exercise_id, synced, supabase_id)

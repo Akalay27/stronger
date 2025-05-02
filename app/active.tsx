@@ -39,6 +39,7 @@ import { Button } from "@rneui/themed";
 import { Ionicons } from "@expo/vector-icons";
 import { Spacer } from "@/components/Spacer";
 import { Title } from "@/components/Title";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 // List of exercise types for the dropdown
 const EXERCISE_TYPES = [
@@ -105,9 +106,6 @@ export default function ActiveWorkoutScreen() {
       }
     }, [workoutId])
   );
-
-  // We don't need a separate listener for navigation
-  // The useFocusEffect in workouts.tsx will handle refreshing data
 
   const loadWorkoutData = async () => {
     if (!workoutId) {
@@ -225,25 +223,13 @@ export default function ActiveWorkoutScreen() {
   };
 
   const handleDeleteSet = async (setId: number) => {
-    Alert.alert("Delete Set", "Are you sure you want to delete this set?", [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        onPress: async () => {
-          try {
-            await deleteSet(setId);
-            // Reload data
-            await loadWorkoutData();
-          } catch (error) {
-            console.error("Error deleting set:", error);
-          }
-        },
-        style: "destructive",
-      },
-    ]);
+    try {
+      await deleteSet(setId);
+      // Reload data
+      await loadWorkoutData();
+    } catch (error) {
+      console.error("Error deleting set:", error);
+    }
   };
 
   const handleFinishWorkout = async () => {
@@ -293,26 +279,34 @@ export default function ActiveWorkoutScreen() {
           data={item.sets}
           keyExtractor={(set) => set.id.toString()}
           renderItem={({ item: set }) => (
-            <ThemedView style={styles.setRow}>
-              <TouchableOpacity
-                style={styles.checkbox}
-                onPress={() => handleSetCompletion(set.id, set.completed)}
-              >
-                <Ionicons
-                  name={set.completed ? "checkmark-circle" : "ellipse-outline"}
-                  size={24}
-                  color={set.completed ? "#4CAF50" : "#999"}
-                />
-              </TouchableOpacity>
-              <ThemedText style={{ flex: 1 }}>
-                {set.weight} lbs × {set.reps} reps
-              </ThemedText>
-              <Button
-                type="clear"
-                icon={<Ionicons name="trash-outline" size={20} color="red" />}
-                onPress={() => handleDeleteSet(set.id)}
-              />
-            </ThemedView>
+            <Swipeable
+              renderRightActions={() => (
+                <TouchableOpacity
+                  style={styles.deleteSwipe}
+                  onPress={() => handleDeleteSet(set.id)}
+                >
+                  <Ionicons name="trash-outline" size={24} color="#fff" />
+                </TouchableOpacity>
+              )}
+            >
+              <ThemedView style={styles.setRow}>
+                <TouchableOpacity
+                  style={styles.checkbox}
+                  onPress={() => handleSetCompletion(set.id, set.completed)}
+                >
+                  <Ionicons
+                    name={
+                      set.completed ? "checkmark-circle" : "ellipse-outline"
+                    }
+                    size={24}
+                    color={set.completed ? "#4CAF50" : "#999"}
+                  />
+                </TouchableOpacity>
+                <ThemedText style={styles.setText}>
+                  {set.weight} lb × {set.reps}
+                </ThemedText>
+              </ThemedView>
+            </Swipeable>
           )}
           scrollEnabled={false}
         />
@@ -600,5 +594,17 @@ const styles = StyleSheet.create({
   emptyContainer: {
     padding: 16,
     alignItems: "center",
+  },
+  deleteSwipe: {
+    backgroundColor: "#f44336",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    height: "100%",
+  },
+  setText: {
+    flex: 1,
+    fontSize: 16,
   },
 });
