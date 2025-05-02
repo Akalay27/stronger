@@ -45,6 +45,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* testing page */}
+      <Tabs.Screen
+        name="testing"
+        options={{
+          title: "Testing",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="gear" color={color} />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="explore"
         options={{

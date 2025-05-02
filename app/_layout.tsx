@@ -31,8 +31,8 @@ export default function RootLayout() {
   useEffect(() => {
     // Initialize database
     initDatabase()
-      .then(() => console.log('Database initialized'))
-      .catch(error => console.error('Error initializing database:', error));
+      .then(() => console.log("Database initialized"))
+      .catch((error) => console.error("Error initializing database:", error));
 
     // Get session
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -58,8 +58,8 @@ export default function RootLayout() {
       router.replace("/login");
     } else {
       // Try to sync any unsynced workout sets when user is authenticated
-      syncUnsyncedSets().catch(error => 
-        console.error('Error syncing workout sets during navigation:', error)
+      syncUnsyncedSets().catch((error) =>
+        console.error("Error syncing workout sets during navigation:", error)
       );
       router.replace("/(tabs)");
     }
