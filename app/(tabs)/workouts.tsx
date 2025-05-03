@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ActivityIndicator, Alert, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -103,91 +103,83 @@ export default function WorkoutsScreen() {
         <Animated.ScrollView style={{ paddingTop: insets.top + 40 }}>
             <Title type="h1">Workouts</Title>
             <Spacer gap={20} />
-
-            {activeWorkout ? (
-                <>
-                    <Title type="h2" lightColor="#888888">
-                        Current Workout
-                    </Title>
-                    <Spacer gap={10} />
-                    <PrimaryContainer>
-                        <ThemedText type="subtitle">{activeWorkout.name}</ThemedText>
-                        <ThemedText>
-                            Started: {new Date(activeWorkout.start_time).toLocaleString()}
-                        </ThemedText>
+            <ThemedView style={{ paddingHorizontal: 20 }}>
+                {activeWorkout ? (
+                    <>
+                        <Title type="h2" lightColor="#888888">
+                            Current Workout
+                        </Title>
                         <Spacer gap={10} />
-                        <Button
-                            title="Resume Workout"
-                            onPress={handleResumeWorkout}
-                            buttonStyle={{ backgroundColor: '#4CAF50' }}
-                        />
-                    </PrimaryContainer>
-                </>
-            ) : (
-                <>
-                    <Title type="h2" lightColor="#888888">
-                        Start a new workout
-                    </Title>
-                    <Spacer gap={10} />
-
-                    {showNameInput ? (
                         <PrimaryContainer>
-                            <ThemedText type="subtitle">Name your workout:</ThemedText>
-                            <TextInput
-                                style={{
-                                    height: 40,
-                                    borderWidth: 1,
-                                    borderColor: '#ddd',
-                                    borderRadius: 4,
-                                    padding: 8,
-                                    marginVertical: 10,
-                                }}
-                                value={workoutName}
-                                onChangeText={setWorkoutName}
-                                placeholder="e.g., Leg Day, Upper Body, etc."
+                            <ThemedText type="subtitle">{activeWorkout.name}</ThemedText>
+                            <ThemedText>
+                                Started: {new Date(activeWorkout.start_time).toLocaleString()}
+                            </ThemedText>
+                            <Spacer gap={10} />
+                            <Button
+                                title="Resume Workout"
+                                onPress={handleResumeWorkout}
+                                buttonStyle={{ backgroundColor: '#4CAF50' }}
                             />
-                            <View style={{ flexDirection: 'row', gap: 10 }}>
-                                <Button
-                                    title="Cancel"
-                                    onPress={() => {
-                                        setShowNameInput(false);
-                                        setWorkoutName('');
-                                    }}
-                                    buttonStyle={{ backgroundColor: '#f44336' }}
-                                    containerStyle={{ flex: 1 }}
-                                />
-                                <Button
-                                    title="Start Workout"
-                                    onPress={handleStartWorkout}
-                                    disabled={!workoutName.trim()}
-                                    containerStyle={{ flex: 1 }}
-                                />
-                            </View>
                         </PrimaryContainer>
-                    ) : (
-                        <PrimaryContainer>
+                    </>
+                ) : (
+                    <>
+                        <Title type="h2" lightColor="#888888">
+                            Start a new workout
+                        </Title>
+                        <Spacer gap={10} />
+
+                        {showNameInput ? (
+                            <PrimaryContainer>
+                                <ThemedText type="subtitle">Name your workout:</ThemedText>
+                                <TextInput
+                                    style={{
+                                        height: 40,
+                                        borderWidth: 1,
+                                        borderColor: '#ddd',
+                                        borderRadius: 4,
+                                        padding: 8,
+                                        marginVertical: 10,
+                                    }}
+                                    value={workoutName}
+                                    onChangeText={setWorkoutName}
+                                    placeholder="e.g., Leg Day, Upper Body, etc."
+                                />
+                                <View style={{ flexDirection: 'row', gap: 10 }}>
+                                    <Button
+                                        title="Cancel"
+                                        onPress={() => {
+                                            setShowNameInput(false);
+                                            setWorkoutName('');
+                                        }}
+                                        buttonStyle={{ backgroundColor: '#f44336' }}
+                                        containerStyle={{ flex: 1 }}
+                                    />
+                                    <Button
+                                        title="Start Workout"
+                                        onPress={handleStartWorkout}
+                                        disabled={!workoutName.trim()}
+                                        containerStyle={{ flex: 1 }}
+                                    />
+                                </View>
+                            </PrimaryContainer>
+                        ) : (
                             <Button
                                 title="Start New Workout"
                                 onPress={() => setShowNameInput(true)}
                                 buttonStyle={{ backgroundColor: '#1e88e5' }}
                             />
-                        </PrimaryContainer>
-                    )}
-                </>
-            )}
+                        )}
+                    </>
+                )}
 
-            <Spacer gap={20} />
-            <Title type="h2" lightColor="#888888">
-                Join a workout
-            </Title>
-            <Spacer gap={10} />
-            <PrimaryContainer>
-                <Button
-                    title="Join Workout"
-                    onPress={() => Alert.alert('Coming Soon', 'This feature is not yet available.')}
-                    buttonStyle={{ backgroundColor: '#9C27B0' }}
-                />
-            </PrimaryContainer>
+                <Spacer gap={20} />
+                <Title type="h2" lightColor="#888888">
+                    Templates
+                </Title>
+                <Spacer gap={10} />
+            </ThemedView>
         </Animated.ScrollView>
     );
 }

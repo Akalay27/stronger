@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase';
 import { initDatabase, syncUnsyncedWorkouts } from '@/lib/database';
 import { Session } from '@supabase/supabase-js';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Button } from '@rneui/themed';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -70,6 +71,12 @@ export default function RootLayout() {
                 <Stack>
                     <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                     <Stack.Screen name="login/index" options={{ headerShown: false }} />
+                    <Stack.Screen
+                        name="active/index"
+                        options={{
+                            headerShown: false,
+                        }}
+                    />
                     <Stack.Screen name="+not-found" />
                 </Stack>
                 <StatusBar style="auto" />
