@@ -4,10 +4,6 @@ export type SpacerProps = TextProps & {
     gap?: number;
 };
 
-export function Spacer({
-    gap = 0
-}: SpacerProps) {
-    return (
-        <View style={{ marginBottom: gap }}/>
-    );
+export function Spacer({ gap = 0 }: SpacerProps) {
+    return <View style={{ marginBottom: gap }} />;
 }

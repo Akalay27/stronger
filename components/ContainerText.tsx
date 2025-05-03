@@ -18,24 +18,14 @@ export function ContainerText({
     darkColor,
     gradientLeft = null,
     gradientRight = null,
-    children
+    children,
 }: TitleProps & PropsWithChildren) {
     const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
     const gradLeft = gradientLeft ? gradientLeft : color;
     const gradRight = gradientRight ? gradientRight : color;
 
     return (
-        <MaskedView
-            maskElement={
-                <Text
-                    style={[
-                        styles.text,
-                        style
-                    ]}
-                >{children}</Text>
-            }
-            
-        >
+        <MaskedView maskElement={<Text style={[styles.text, style]}>{children}</Text>}>
             <LinearGradient
                 colors={[gradLeft, gradRight]}
                 start={{ x: 0, y: 0 }}
@@ -44,7 +34,7 @@ export function ContainerText({
             />
             <Text style={[styles.maskedViewText]}>{children}</Text>
         </MaskedView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({

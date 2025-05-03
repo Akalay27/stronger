@@ -12,18 +12,16 @@ export default function TabTwoScreen() {
 
     return (
         <Animated.ScrollView style={{ paddingTop: insets.top + 90 }}>
-            <Title type='h1'>h1</Title>
-            <Spacer gap={20}/>
-            <Title type='h2' lightColor='#888888'>h2</Title>
-            <Spacer gap={20}/>
-            <PrimaryContainer
-                mainColor={'primary'}
-                style={{ width: '50%' }}
-            >
-                <ContainerText
-                    gradientLeft={'#23BECF'}
-                    gradientRight={'#3535E2'}
-                >Start</ContainerText>
+            <Title type="h1">h1</Title>
+            <Spacer gap={20} />
+            <Title type="h2" lightColor="#888888">
+                h2
+            </Title>
+            <Spacer gap={20} />
+            <PrimaryContainer mainColor={'primary'} style={{ width: '50%' }}>
+                <ContainerText gradientLeft={'#23BECF'} gradientRight={'#3535E2'}>
+                    Start
+                </ContainerText>
             </PrimaryContainer>
         </Animated.ScrollView>
     );

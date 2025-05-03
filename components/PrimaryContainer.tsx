@@ -16,7 +16,7 @@ export function PrimaryContainer({
     lightColor,
     darkColor,
     mainColor = 'primary',
-    children
+    children,
 }: TitleProps & PropsWithChildren) {
     const borderColor = useThemeColor({ light: lightColor, dark: darkColor }, mainColor);
     const backgroundColor = HexToRGBA(borderColor, 0.1);
@@ -34,13 +34,13 @@ export function PrimaryContainer({
         >
             {children}
         </TouchableOpacity>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: "center",
-        alignSelf: "flex-start",
+        alignItems: 'center',
+        alignSelf: 'flex-start',
 
         borderRadius: 10,
         borderWidth: 3,

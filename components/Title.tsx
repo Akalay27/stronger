@@ -8,13 +8,7 @@ export type TitleProps = TextProps & {
     type?: 'h1' | 'h2' | 'h3';
 };
 
-export function Title({
-    style,
-    lightColor,
-    darkColor,
-    type = 'h1',
-    ...rest
-}: TitleProps) {
+export function Title({ style, lightColor, darkColor, type = 'h1', ...rest }: TitleProps) {
     const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
     return (
