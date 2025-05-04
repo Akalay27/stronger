@@ -9,24 +9,29 @@ export type TitleProps = TextProps & {
     lightColor?: string;
     darkColor?: string;
     mainColor?: keyof typeof Colors.light | keyof typeof Colors.dark;
+    padding?: number;
 };
 
 export function PrimaryContainer({
-    style,
-    lightColor,
     darkColor,
+    children,
+    lightColor,
     mainColor = 'primary',
-    children
+    onPress,
+    padding = 20,
+    style,
 }: TitleProps & PropsWithChildren) {
     const borderColor = useThemeColor({ light: lightColor, dark: darkColor }, mainColor);
     const backgroundColor = HexToRGBA(borderColor, 0.1);
 
     return (
         <TouchableOpacity
+            onPress={onPress}
             style={[
                 {
                     borderColor: borderColor,
                     backgroundColor: backgroundColor,
+                    padding: padding,
                 },
                 styles.container,
                 style as ViewStyle,
@@ -39,12 +44,14 @@ export function PrimaryContainer({
 
 const styles = StyleSheet.create({
     container: {
-        alignItems: "center",
         alignSelf: "flex-start",
 
         borderRadius: 10,
         borderWidth: 3,
 
-        padding: 20,
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+
+        maxWidth: '50%',
     },
 });
