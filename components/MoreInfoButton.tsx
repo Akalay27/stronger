@@ -4,20 +4,20 @@ import { StyleSheet, Text, type TextProps, TouchableOpacity, ViewStyle } from 'r
 import { Colors } from '@/constants/Colors';
 import { useThemeColor } from '@/hooks/useThemeColor';
 
-export type MoreInfoProps = TextProps & {
+export type MoreInfoButtonProps = TextProps & {
     lightColor?: string;
     darkColor?: string;
     mainColor?: keyof typeof Colors.light | keyof typeof Colors.dark;
     padding?: number;
 };
 
-export function MoreInfo({
+export function MoreInfoButton({
     darkColor,
     lightColor,
     mainColor = 'primary',
     onPress,
     style,
-}: MoreInfoProps & PropsWithChildren) {
+}: MoreInfoButtonProps & PropsWithChildren) {
     const color = useThemeColor({ light: lightColor, dark: darkColor }, 'tertiaryText');
 
     return (
@@ -40,12 +40,22 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
 
-        width: 100,
+        includeFontPadding: false,
+
+        marginLeft: 'auto',
+
+        overflow: 'visible',
     },
     text: {
-        fontSize: 25,
+        fontSize: 20,
         fontWeight: '800',
 
-        lineHeight: 23,
+        includeFontPadding: false,
+
+        lineHeight: 15,
+
+        overflow: 'visible',
+
+        textAlign: 'right',
     },
 });

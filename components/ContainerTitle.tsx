@@ -76,11 +76,13 @@ export function ContainerTitle({
         <MaskedView
             maskElement={
                 <View style={{
-                    height: textSize.height,
+                    // height: textSize.height,
 
-                    width: textSize.width,
+                    // width: textSize.width,
                 }}>
                     <Text
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
                         style={[
                             styles.text,
                             style,
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
 
         color: '#000',
 
-        fontSize: 20,
+        fontSize: 23,
         fontWeight: '800',
 
         textAlign: 'center',

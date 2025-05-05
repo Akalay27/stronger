@@ -1,24 +1,21 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated from 'react-native-reanimated';
 
+import { useThemeColor } from '@/hooks/useThemeColor';
+
 // TODO: Combine container elements into one
-import { Break } from '@/components/Break';
-import { ContainerTitle } from '@/components/ContainerTitle';
-import { ContainerDescription } from '@/components/ContainerDescription';
-import { HorizontalSpacer } from '@/components/HorizontalSpacer';
-import { MoreInfo } from '@/components/MoreInfo';
-import { PrimaryContainer } from '@/components/PrimaryContainer';
 import { VerticalSpacer } from '@/components/VerticalSpacer';
 import { Title } from '@/components/Title';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import { useThemeColor } from '@/hooks/useThemeColor';
+
+import { GenerateButton } from '@/components/ui/GenerateButton';
+import { InfoContainer } from "@/components/ui/InfoContainer";
+import { StartButton } from '@/components/ui/StartButton';
 
 export default function TabTwoScreen() {
     const insets = useSafeAreaInsets();
 
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
-    const color = useThemeColor({ light: "", dark: "" }, "secondaryText");
 
     return (
         <Animated.ScrollView style={{
@@ -34,45 +31,8 @@ export default function TabTwoScreen() {
             <VerticalSpacer gap={20}/>
 
             <View style={[ styles.container ]}>
-                <PrimaryContainer
-                    mainColor={'primary'}
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                    }}
-                >
-                    <ContainerTitle
-                        gradientLeft={'#23BECF'}
-                        gradientRight={'#3535E2'}
-                    >Start</ContainerTitle>
-                    <VerticalSpacer gap={40}/>
-                    <Break/>
-                    <IconSymbol
-                        color={color}
-                        name="arrow.right"
-                        size={40}
-                    />
-                </PrimaryContainer>
-
-                <PrimaryContainer
-                    mainColor={'secondary'}
-                    style={{
-                        flex: 1,
-                        justifyContent: 'center',
-                    }}
-                >
-                    <ContainerTitle
-                        gradientLeft={'#9B5DFF'}
-                        gradientRight={'#EA00B0'}
-                    >Generate</ContainerTitle>
-                    <VerticalSpacer gap={40}/>
-                    <Break/>
-                    <IconSymbol
-                        color={color}
-                        name="sparkles"
-                        size={40}
-                    />
-                </PrimaryContainer>
+                <StartButton/>
+                <GenerateButton/>
             </View>
 
             <VerticalSpacer gap={20}/>
@@ -82,75 +42,17 @@ export default function TabTwoScreen() {
             <VerticalSpacer gap={20}/>
 
             <View style={styles.container}>
-                <PrimaryContainer
-                    mainColor={'info'}
-                    style={{ 
-                        flex: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        padding: 10,
-                        paddingLeft: 10,
-                    }}
-                >
-                    <ContainerTitle
-                        gradientLeft={'text'}
-                        gradientRight={'text'}
-                        style={{
-                            fontWeight: '700',
-                            textAlign: 'left',
-                        }}
-                    >
-                        Legs and Core
-                    </ContainerTitle>
-                    <HorizontalSpacer gap={9}/>
-                    <MoreInfo/>
-                    <VerticalSpacer gap={40}/>
-                    <ContainerDescription>
-                        Leg Extension, Squat (Barbell), Calf Raise on Leg Press
-                    </ContainerDescription>
-                    <VerticalSpacer gap={10}/>
-                    <ContainerDescription>
-                        <IconSymbol color={color} name="clock.fill" size={13}/>
-                        <HorizontalSpacer gap={5}/>
-                        2 days ago
-                    </ContainerDescription>
-                    <VerticalSpacer gap={10}/>
-                </PrimaryContainer>
+                <InfoContainer
+                    descriptionText="Leg Extension, Squat (Barbell), Calf Raise on Leg Press"
+                    timerText="2 days ago"
+                    titleText="Legs and Core"
+                />
 
-                <PrimaryContainer
-                    mainColor={'info'}
-                    style={{ 
-                        flex: 1,
-                        flexDirection: 'row',
-                        justifyContent: 'space-between',
-                        padding: 10,
-                        paddingLeft: 15,
-                    }}
-                >
-                    <ContainerTitle
-                        gradientLeft={'text'}
-                        gradientRight={'text'}
-                        style={{
-                            fontWeight: '700',
-                            textAlign: 'left',
-                        }}
-                    >
-                        Legs and Core
-                    </ContainerTitle>
-                    <HorizontalSpacer gap={9}/>
-                    <MoreInfo/>
-                    <VerticalSpacer gap={40}/>
-                    <ContainerDescription>
-                        Leg Extension, Squat (Barbell), Calf Raise on Leg Press
-                    </ContainerDescription>
-                    <VerticalSpacer gap={10}/>
-                    <ContainerDescription>
-                        <IconSymbol color={color} name="clock.fill" size={13}/>
-                        <HorizontalSpacer gap={5}/>
-                        2 days ago
-                    </ContainerDescription>
-                    <VerticalSpacer gap={10}/>
-                </PrimaryContainer>
+                <InfoContainer
+                    descriptionText="Lat Pulldowns, Drag Curls, Cable Rows, Bayesian Curls, Dumbbell Curls"
+                    timerText="5 days ago"
+                    titleText="Back and Bis"
+                />
             </View>
         </Animated.ScrollView>
     );
