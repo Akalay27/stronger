@@ -12,7 +12,7 @@ import { GenerateButton } from '@/components/ui/GenerateButton';
 import { InfoContainer } from "@/components/ui/InfoContainer";
 import { StartButton } from '@/components/ui/StartButton';
 
-export default function HomeScreen() {
+export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();
 
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
