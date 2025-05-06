@@ -1,9 +1,16 @@
-import { PropsWithChildren, useState } from 'react';
-import { DimensionValue, LayoutChangeEvent, StyleSheet, Text, type TextProps, View } from 'react-native';
+import { PropsWithChildren, useState } from "react";
+import {
+    DimensionValue,
+    LayoutChangeEvent,
+    StyleSheet,
+    Text,
+    type TextProps,
+    View,
+} from "react-native";
 
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { IconSymbol } from "@/components/ui/IconSymbol";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ProgressSliderProps = TextProps & {
     darkColor?: string;
@@ -23,7 +30,7 @@ export function ProgressSlider({
     style,
     units,
 }: ProgressSliderProps & PropsWithChildren) {
-    const labelColor = useThemeColor({ light: lightColor, dark: darkColor }, 'tertiaryText');
+    const labelColor = useThemeColor({ light: lightColor, dark: darkColor }, "tertiaryText");
 
     const [sliderSize, setSliderSize] = useState({ width: 0, height: 0 });
     const [sliderContainerSize, setSliderContainerSize] = useState({ width: 0, height: 0 });
@@ -32,63 +39,76 @@ export function ProgressSlider({
         const { width, height } = e.nativeEvent.layout;
 
         setSliderSize({ width, height });
-    }
-    
+    };
+
     const onSliderContainerLayout = (e: LayoutChangeEvent) => {
         const { width, height } = e.nativeEvent.layout;
 
         setSliderContainerSize({ width, height });
-    }
+    };
 
-    const setBottomLabelPosition = (containerWidth: number, sliderWidth: number): DimensionValue => {
-        const adjustedProgress = (progress * 2) - 1;
+    const setBottomLabelPosition = (
+        containerWidth: number,
+        sliderWidth: number,
+    ): DimensionValue => {
+        const adjustedProgress = progress * 2 - 1;
 
-        const boundingPercentage = (1 - ((containerWidth - (sliderWidth*adjustedProgress))/containerWidth)) * 100;
+        const boundingPercentage =
+            (1 - (containerWidth - sliderWidth * adjustedProgress) / containerWidth) * 100;
         const progressPercentage = boundingPercentage;
 
-        return (progressPercentage.toString() + "%") as DimensionValue
-    }
+        return (progressPercentage.toString() + "%") as DimensionValue;
+    };
 
     return (
-        <View
-            onLayout={onSliderContainerLayout}
-            style={styles.sliderContainer}
-        >
-            <Text style={[
-                {
-                    color: labelColor,
-                },
-                styles.sliderSideLabel
-            ]}>{leftValue.toString() + units}</Text>
-            <View
-                onLayout={onSliderLayout}
-                style={styles.sliderBarContainer}
+        <View onLayout={onSliderContainerLayout} style={styles.sliderContainer}>
+            <Text
+                style={[
+                    {
+                        color: labelColor,
+                    },
+                    styles.sliderSideLabel,
+                ]}
             >
+                {leftValue.toString() + units}
+            </Text>
+            <View onLayout={onSliderLayout} style={styles.sliderBarContainer}>
                 <View style={styles.sliderBackground}>
-                    <View style={[
-                        {
-                            width: ((progress * 100).toString() + '%') as DimensionValue,
-                        },
-                        styles.slider
-                    ]}></View>
+                    <View
+                        style={[
+                            {
+                                width: ((progress * 100).toString() + "%") as DimensionValue,
+                            },
+                            styles.slider,
+                        ]}
+                    ></View>
                 </View>
             </View>
-            <Text style={[
-                {
-                    color: labelColor,
-                },
-                styles.sliderSideLabel
-            ]}>{rightValue.toString() + units}</Text>
+            <Text
+                style={[
+                    {
+                        color: labelColor,
+                    },
+                    styles.sliderSideLabel,
+                ]}
+            >
+                {rightValue.toString() + units}
+            </Text>
             <View
                 style={[
                     {
-                        marginLeft: setBottomLabelPosition(sliderContainerSize.width, sliderSize.width),
+                        marginLeft: setBottomLabelPosition(
+                            sliderContainerSize.width,
+                            sliderSize.width,
+                        ),
                     },
-                    styles.sliderBottomLabel
+                    styles.sliderBottomLabel,
                 ]}
             >
-                <IconSymbol color={labelColor} name="chevron.up" size={20}/>
-                <Text style={{ color: labelColor }}>{(leftValue + (rightValue - leftValue) * progress).toFixed(1) + units}</Text>
+                <IconSymbol color={labelColor} name="chevron.up" size={20} />
+                <Text style={{ color: labelColor }}>
+                    {(leftValue + (rightValue - leftValue) * progress).toFixed(1) + units}
+                </Text>
             </View>
         </View>
     );
@@ -96,13 +116,13 @@ export function ProgressSlider({
 
 const styles = StyleSheet.create({
     slider: {
-        backgroundColor: '#0060FF',
+        backgroundColor: "#0060FF",
         borderRadius: 5,
 
         height: 5,
     },
     sliderBackground: {
-        backgroundColor: '#EEE',
+        backgroundColor: "#EEE",
         borderRadius: 5,
 
         height: 5,
@@ -110,7 +130,7 @@ const styles = StyleSheet.create({
     sliderBarContainer: {
         flexGrow: 1,
 
-        justifyContent: 'center',
+        justifyContent: "center",
 
         height: 30,
 
@@ -118,18 +138,18 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     sliderBottomLabel: {
-        alignItems: 'center',
+        alignItems: "center",
         marginTop: 20,
-        position: 'absolute',
+        position: "absolute",
     },
     sliderContainer: {
-        flexDirection: 'row',
+        flexDirection: "row",
 
         height: 30,
 
-        justifyContent: 'center',
+        justifyContent: "center",
 
-        width: '100%',
+        width: "100%",
     },
     sliderSideLabel: {
         lineHeight: 30,

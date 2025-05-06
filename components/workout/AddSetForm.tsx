@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
-import { Button } from '@rneui/themed';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React, { useState } from "react";
+import { StyleSheet, TextInput, View } from "react-native";
+import { Button } from "@rneui/themed";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
 
 interface AddSetFormProps {
     onAddSet: (weight: string, reps: string) => void;
@@ -10,13 +10,13 @@ interface AddSetFormProps {
 }
 
 export const AddSetForm: React.FC<AddSetFormProps> = ({ onAddSet, onCancel }) => {
-    const [weight, setWeight] = useState('');
-    const [reps, setReps] = useState('');
+    const [weight, setWeight] = useState("");
+    const [reps, setReps] = useState("");
 
     const handleSubmit = () => {
         onAddSet(weight, reps);
-        setWeight('');
-        setReps('');
+        setWeight("");
+        setReps("");
     };
 
     return (
@@ -48,8 +48,8 @@ export const AddSetForm: React.FC<AddSetFormProps> = ({ onAddSet, onCancel }) =>
                     title="Cancel"
                     onPress={onCancel}
                     type="outline"
-                    buttonStyle={{ borderColor: '#f44336' }}
-                    titleStyle={{ color: '#f44336' }}
+                    buttonStyle={{ borderColor: "#f44336" }}
+                    titleStyle={{ color: "#f44336" }}
                     containerStyle={{ flex: 1, marginRight: 8 }}
                 />
                 <Button
@@ -68,10 +68,10 @@ const styles = StyleSheet.create({
         marginTop: 12,
         paddingTop: 12,
         borderTopWidth: 1,
-        borderTopColor: '#eee',
+        borderTopColor: "#eee",
     },
     setInputRow: {
-        flexDirection: 'row',
+        flexDirection: "row",
     },
     setInputContainer: {
         flex: 1,
@@ -80,13 +80,13 @@ const styles = StyleSheet.create({
     input: {
         height: 40,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: "#ddd",
         borderRadius: 4,
         padding: 8,
         marginTop: 4,
     },
     addSetButtons: {
-        flexDirection: 'row',
+        flexDirection: "row",
         marginTop: 8,
     },
 });

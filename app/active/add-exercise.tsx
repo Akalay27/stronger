@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
     View,
     FlatList,
@@ -7,32 +7,32 @@ import {
     StyleSheet,
     Text,
     KeyboardAvoidingView,
-} from 'react-native';
-import { useRoute } from '@react-navigation/native';
-import { ThemedView } from '@/components/ThemedView';
-import CustomHeader from '@/components/workout/CustomHeader';
-import { addExercises, ExerciseType, getExerciseTypes } from '@/lib/database';
-import { ExerciseInstructionsModal } from '@/components/workout/ExerciseInstructionsModal';
-import { router } from 'expo-router';
-import { ExerciseTypeListItem } from '@/components/workout/ExerciseTypeListItem';
+} from "react-native";
+import { useRoute } from "@react-navigation/native";
+import { ThemedView } from "@/components/ThemedView";
+import CustomHeader from "@/components/workout/CustomHeader";
+import { addExercises, ExerciseType, getExerciseTypes } from "@/lib/database";
+import { ExerciseInstructionsModal } from "@/components/workout/ExerciseInstructionsModal";
+import { router } from "expo-router";
+import { ExerciseTypeListItem } from "@/components/workout/ExerciseTypeListItem";
 
 export default function AddExerciseScreen() {
     const route = useRoute();
     const { workoutId } = route.params as { workoutId: number };
     const [exerciseTypes, setExerciseTypes] = useState<ExerciseType[]>([]);
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState("");
     const [helpVisible, setHelpVisible] = useState(false);
     const [helpModalExercise, setHelpModalExercise] = useState<ExerciseType | null>(null);
     const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
     useEffect(() => {
         getExerciseTypes()
             .then(setExerciseTypes)
-            .catch((error) => console.error('Error fetching exercise types:', error));
+            .catch((error) => console.error("Error fetching exercise types:", error));
     }, []);
 
     const handleAddExercises = async () => {
         // Handle adding selected exercises to the workout
-        console.log('Selected exercises:', selectedExercises);
+        console.log("Selected exercises:", selectedExercises);
         await addExercises(workoutId, selectedExercises);
         router.back();
     };
@@ -82,7 +82,7 @@ export default function AddExerciseScreen() {
                 visible={helpVisible}
                 onClose={() => setHelpVisible(false)}
                 instructions={helpModalExercise?.instructions || []}
-                exerciseName={helpModalExercise?.name || ''}
+                exerciseName={helpModalExercise?.name || ""}
             />
         </KeyboardAvoidingView>
     );
@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     filterRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
+        flexDirection: "row",
+        justifyContent: "space-around",
         paddingVertical: 8,
     },
     filterButton: {

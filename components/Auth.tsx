@@ -1,9 +1,9 @@
-import { Platform } from 'react-native';
-import * as AppleAuthentication from 'expo-apple-authentication';
-import { supabase } from '../lib/supabase';
+import { Platform } from "react-native";
+import * as AppleAuthentication from "expo-apple-authentication";
+import { supabase } from "../lib/supabase";
 
 export function Auth() {
-    if (Platform.OS === 'ios')
+    if (Platform.OS === "ios")
         return (
             <AppleAuthentication.AppleAuthenticationButton
                 buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
@@ -24,7 +24,7 @@ export function Auth() {
                                 error,
                                 data: { user },
                             } = await supabase.auth.signInWithIdToken({
-                                provider: 'apple',
+                                provider: "apple",
                                 token: credential.identityToken,
                             });
                             console.log(JSON.stringify({ error, user }, null, 2));
@@ -32,10 +32,10 @@ export function Auth() {
                                 // User is signed in.
                             }
                         } else {
-                            throw new Error('No identityToken.');
+                            throw new Error("No identityToken.");
                         }
                     } catch (e) {
-                        if (e.code === 'ERR_REQUEST_CANCELED') {
+                        if (e.code === "ERR_REQUEST_CANCELED") {
                             // handle that the user canceled the sign-in flow
                         } else {
                             // handle other errors

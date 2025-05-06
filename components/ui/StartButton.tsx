@@ -1,7 +1,7 @@
 import { PropsWithChildren } from "react";
 import { type TextProps } from "react-native";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 import { Break } from "@/components/Break";
 import { ContainerTitle } from "@/components/ContainerTitle";
@@ -25,24 +25,19 @@ export function StartButton({
 
     return (
         <PrimaryContainer
-            mainColor={'primary'}
+            mainColor={"primary"}
             onPress={onPress}
             style={{
                 flex: 1,
-                justifyContent: 'center',
+                justifyContent: "center",
             }}
         >
-            <ContainerTitle
-                gradientLeft={'#23BECF'}
-                gradientRight={'#3535E2'}
-            >{titleText}</ContainerTitle>
-            <VerticalSpacer gap={40}/>
-            <Break/>
-            <IconSymbol
-                color={color}
-                name={icon}
-                size={40}
-            />
+            <ContainerTitle gradientLeft={"#23BECF"} gradientRight={"#3535E2"}>
+                {titleText}
+            </ContainerTitle>
+            <VerticalSpacer gap={40} />
+            <Break />
+            <IconSymbol color={color} name={icon} size={40} />
         </PrimaryContainer>
     );
-};
+}

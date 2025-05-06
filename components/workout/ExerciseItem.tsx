@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { StyleSheet, FlatList, View, TouchableOpacity } from 'react-native';
-import { Button, Icon } from '@rneui/themed';
-import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Exercise, WorkoutSet } from '@/lib/database';
-import SetItem from './SetItem';
-import AddSetForm from './AddSetForm';
-import { IconSymbol } from '../ui/IconSymbol';
-import { ExerciseWithSetsAndTypeName } from '@/app/active';
+import React, { useState } from "react";
+import { StyleSheet, FlatList, View, TouchableOpacity } from "react-native";
+import { Button, Icon } from "@rneui/themed";
+import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Exercise, WorkoutSet } from "@/lib/database";
+import SetItem from "./SetItem";
+import AddSetForm from "./AddSetForm";
+import { IconSymbol } from "../ui/IconSymbol";
+import { ExerciseWithSetsAndTypeName } from "@/app/active";
 
 interface ExerciseItemProps {
     exercise: ExerciseWithSetsAndTypeName;
@@ -37,7 +37,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
     return (
         <ThemedView style={styles.exerciseItem}>
             <View style={styles.exerciseHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
                     <ThemedText type="subtitle">{exercise.type_name}</ThemedText>
                     <TouchableOpacity onPress={onHelp} style={styles.helpIcon}>
                         <IconSymbol name="info" size={15} color="#888" />
@@ -47,7 +47,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                     type="clear"
                     icon={<IconSymbol name="trash" size={22} color="red" />}
                     onPress={() => onDeleteExercise(exercise.id)}
-                    containerStyle={{ marginLeft: 'auto' }}
+                    containerStyle={{ marginLeft: "auto" }}
                 />
             </View>
 
@@ -76,8 +76,8 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                     type="outline"
                     icon={<IconSymbol name="plus" size={20} color="#1e88e5" />}
                     iconPosition="left"
-                    buttonStyle={{ borderColor: '#1e88e5', marginTop: 8 }}
-                    titleStyle={{ color: '#1e88e5' }}
+                    buttonStyle={{ borderColor: "#1e88e5", marginTop: 8 }}
+                    titleStyle={{ color: "#1e88e5" }}
                 />
             )}
         </ThemedView>
@@ -90,23 +90,23 @@ const styles = StyleSheet.create({
         marginBottom: 16,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: "#ddd",
     },
     exerciseHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
         marginBottom: 8,
     },
     noSetsText: {
-        fontStyle: 'italic',
-        color: '#999',
+        fontStyle: "italic",
+        color: "#999",
         marginVertical: 8,
     },
     helpIcon: {
         padding: 2,
         borderRadius: 10,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
     },
 });
 

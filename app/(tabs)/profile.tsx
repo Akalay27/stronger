@@ -1,9 +1,9 @@
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated from 'react-native-reanimated';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
-import { Title } from '@/components/Title';
+import { Title } from "@/components/Title";
 
 export default function ProfileScreen() {
     const insets = useSafeAreaInsets();
@@ -11,11 +11,13 @@ export default function ProfileScreen() {
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
 
     return (
-        <Animated.ScrollView style={{
-            backgroundColor: backgroundColor,
-            paddingTop: insets.top + 90,
-        }}>
-            <Title type='h1'>Profile</Title>
+        <Animated.ScrollView
+            style={{
+                backgroundColor: backgroundColor,
+                paddingTop: insets.top + 90,
+            }}
+        >
+            <Title type="h1">Profile</Title>
         </Animated.ScrollView>
     );
 }

@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { ExerciseType } from '@/lib/database';
-import { Ionicons } from '@expo/vector-icons';
-import { IconSymbol } from '../ui/IconSymbol';
+import React from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { ExerciseType } from "@/lib/database";
+import { Ionicons } from "@expo/vector-icons";
+import { IconSymbol } from "../ui/IconSymbol";
 
 interface ExerciseTypeListItemProps {
     exercise: ExerciseType;
@@ -26,7 +26,7 @@ export const ExerciseTypeListItem: React.FC<ExerciseTypeListItemProps> = ({
             <View style={styles.info}>
                 <Text style={styles.name}>{exercise.name}</Text>
                 <Text style={styles.category}>
-                    {capitalize(exercise.primaryMuscles.join(', '))}
+                    {capitalize(exercise.primaryMuscles.join(", "))}
                 </Text>
             </View>
 
@@ -47,20 +47,20 @@ function capitalize(str: string) {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         padding: 12,
         borderBottomWidth: 0.5,
-        borderColor: '#444',
+        borderColor: "#444",
     },
     helpIcon: {
-        marginLeft: 'auto',
+        marginLeft: "auto",
         padding: 2,
         borderRadius: 10,
-        backgroundColor: '#ffffff',
+        backgroundColor: "#ffffff",
     },
     selected: {
-        backgroundColor: '#e0e0ff',
+        backgroundColor: "#e0e0ff",
     },
     image: {
         width: 40,
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     name: {
-        fontWeight: '600',
+        fontWeight: "600",
     },
     category: {},
     check: {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
     Modal,
     View,
@@ -8,7 +8,7 @@ import {
     ScrollView,
     TouchableWithoutFeedback,
     Keyboard,
-} from 'react-native';
+} from "react-native";
 
 interface Props {
     visible: boolean;
@@ -54,19 +54,19 @@ export const ExerciseInstructionsModal: React.FC<Props> = ({
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.1)',
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        justifyContent: "center",
+        alignItems: "center",
     },
     modal: {
-        backgroundColor: '#fff',
+        backgroundColor: "#fff",
         padding: 20,
         borderRadius: 12,
-        width: '90%',
+        width: "90%",
     },
     title: {
         fontSize: 18,
-        fontWeight: '600',
+        fontWeight: "600",
         marginBottom: 12,
     },
     content: {
@@ -77,12 +77,12 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     closeButton: {
-        alignSelf: 'center',
+        alignSelf: "center",
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 6,
     },
     closeText: {
-        fontWeight: '500',
+        fontWeight: "500",
     },
 });

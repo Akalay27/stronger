@@ -1,10 +1,10 @@
-import React from 'react';
-import { StyleSheet, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
-import { WorkoutSet } from '@/lib/database';
+import React from "react";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { WorkoutSet } from "@/lib/database";
 
 interface SetItemProps {
     set: WorkoutSet;
@@ -27,9 +27,9 @@ export const SetItem: React.FC<SetItemProps> = ({ set, onComplete, onDelete }) =
                     onPress={() => onComplete(set.id, set.completed)}
                 >
                     <Ionicons
-                        name={set.completed ? 'checkmark-circle' : 'ellipse-outline'}
+                        name={set.completed ? "checkmark-circle" : "ellipse-outline"}
                         size={24}
-                        color={set.completed ? '#4CAF50' : '#999'}
+                        color={set.completed ? "#4CAF50" : "#999"}
                     />
                 </TouchableOpacity>
                 <ThemedText style={styles.setText}>
@@ -42,11 +42,11 @@ export const SetItem: React.FC<SetItemProps> = ({ set, onComplete, onDelete }) =
 
 const styles = StyleSheet.create({
     setRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: "#eee",
     },
     checkbox: {
         marginRight: 10,
@@ -56,12 +56,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     deleteSwipe: {
-        backgroundColor: '#f44336',
-        justifyContent: 'center',
-        alignItems: 'flex-end',
+        backgroundColor: "#f44336",
+        justifyContent: "center",
+        alignItems: "flex-end",
         paddingHorizontal: 20,
         borderRadius: 8,
-        height: '100%',
+        height: "100%",
     },
 });
 

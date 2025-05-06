@@ -1,11 +1,11 @@
-import React from 'react';
-import { StyleSheet, View, TouchableOpacity, Platform, StatusBar } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { IconSymbol } from '../ui/IconSymbol';
+import React from "react";
+import { StyleSheet, View, TouchableOpacity, Platform, StatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemedText } from "@/components/ThemedText";
+import { ThemedView } from "@/components/ThemedView";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { IconSymbol } from "../ui/IconSymbol";
 
 interface CustomHeaderProps {
     title: string;
@@ -27,7 +27,7 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
             style={[
                 styles.container,
                 {
-                    paddingTop: Platform.OS === 'ios' ? insets.top : StatusBar.currentHeight || 0,
+                    paddingTop: Platform.OS === "ios" ? insets.top : StatusBar.currentHeight || 0,
                 },
             ]}
         >
@@ -59,38 +59,38 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: Platform.OS === 'ios' ? 90 : 60,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        height: Platform.OS === "ios" ? 90 : 60,
         paddingHorizontal: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        borderBottomColor: "#ccc",
     },
     backButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
     },
     backText: {
-        color: '#1e88e5',
+        color: "#1e88e5",
         fontSize: 16,
     },
     titleContainer: {
         flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
     },
     sideContainer: {
         width: 60,
-        justifyContent: 'center',
+        justifyContent: "center",
         // Change this:
-        alignItems: 'flex-start', // Align to the left within the space
+        alignItems: "flex-start", // Align to the left within the space
         paddingLeft: 0, // optional, ensure no extra space
         marginLeft: 0, // optional, prevent default inset
     },
     title: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: "bold",
     },
 
     endButton: {
@@ -98,12 +98,12 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
     },
     endText: {
-        color: '#1e88e5',
+        color: "#1e88e5",
         fontSize: 16,
-        textAlign: 'right',
+        textAlign: "right",
     },
     endTextDisabled: {
-        color: '#ccc',
+        color: "#ccc",
     },
 });
 

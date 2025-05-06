@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 function useElapsedTime(startTime: number): string {
     const [elapsedTime, setElapsedTime] = useState(0);
@@ -30,7 +30,7 @@ const formatElapsedTime = (milliseconds: number): string => {
     return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
 };
 const padZero = (num: number): string => {
-    return num.toString().padStart(2, '0');
+    return num.toString().padStart(2, "0");
 };
 
 export default useElapsedTime;
