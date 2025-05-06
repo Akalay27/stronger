@@ -7,12 +7,12 @@ import Animated from "react-native-reanimated";
 
 import { ContainerText } from "@/components/ContainerText";
 import { PrimaryContainer } from "@/components/PrimaryContainer";
-import { Spacer } from "@/components/Spacer";
 import { Title } from "@/components/Title";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@rneui/themed";
 import { initDatabase, getActiveWorkout, createWorkout, Workout } from "@/lib/database";
 import { ThemedView } from "@/components/ThemedView";
+import { VerticalSpacer } from "@/components/VerticalSpacer";
 
 export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();
@@ -102,20 +102,20 @@ export default function WorkoutsScreen() {
     return (
         <Animated.ScrollView style={{ paddingTop: insets.top + 40 }}>
             <Title type="h1">Workouts</Title>
-            <Spacer gap={20} />
+            <VerticalSpacer gap={20} />
             <ThemedView style={{ paddingHorizontal: 20 }}>
                 {activeWorkout ? (
                     <>
                         <Title type="h2" lightColor="#888888">
                             Current Workout
                         </Title>
-                        <Spacer gap={10} />
+                        <VerticalSpacer gap={10} />
                         <PrimaryContainer>
                             <ThemedText type="subtitle">{activeWorkout.name}</ThemedText>
                             <ThemedText>
                                 Started: {new Date(activeWorkout.start_time).toLocaleString()}
                             </ThemedText>
-                            <Spacer gap={10} />
+                            <VerticalSpacer gap={10} />
                             <Button
                                 title="Resume Workout"
                                 onPress={handleResumeWorkout}
@@ -128,7 +128,7 @@ export default function WorkoutsScreen() {
                         <Title type="h2" lightColor="#888888">
                             Start a new workout
                         </Title>
-                        <Spacer gap={10} />
+                        <VerticalSpacer gap={10} />
 
                         {showNameInput ? (
                             <PrimaryContainer>
@@ -174,11 +174,11 @@ export default function WorkoutsScreen() {
                     </>
                 )}
 
-                <Spacer gap={20} />
+                <VerticalSpacer gap={20} />
                 <Title type="h2" lightColor="#888888">
                     Templates
                 </Title>
-                <Spacer gap={10} />
+                <VerticalSpacer gap={10} />
             </ThemedView>
         </Animated.ScrollView>
     );

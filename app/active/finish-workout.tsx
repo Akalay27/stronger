@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import ConfettiCannon from "react-native-confetti-cannon";
 import { Button } from "@rneui/themed";
 import { ExternalLink } from "@/components/ExternalLink";
-import { Spacer } from "@/components/Spacer";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { endWorkout, getWorkoutCount } from "@/lib/database";
 import { useRoute } from "@react-navigation/native";
 import { router } from "expo-router";
 import { KeyboardAvoidingView, StyleSheet, View } from "react-native";
+import { VerticalSpacer } from "@/components/VerticalSpacer";
 
 export default function FinishWorkout() {
     const route = useRoute();
@@ -39,11 +39,11 @@ export default function FinishWorkout() {
 
             <ThemedText type="title">Workout Finished!</ThemedText>
             <ThemedText type="defaultSemiBold">{numberOfWorkouts} workouts completed!</ThemedText>
-            <Spacer gap={20} />
+            <VerticalSpacer gap={20} />
             <ThemedText type="default" style={{ textAlign: "center" }}>
                 Your workout has been successfully completed.
             </ThemedText>
-            <Spacer gap={20} />
+            <VerticalSpacer gap={20} />
 
             <ThemedView style={styles.actionRow}>
                 <Button title="Save Values" onPress={() => handleFinishWorkout(false)} />
