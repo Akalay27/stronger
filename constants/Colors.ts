@@ -9,7 +9,7 @@ const tintColorDark = '#fff';
 export const Colors = {
     light: {
         background: '#fff',
-        error: '#FF2C2C',
+        error: '#d85947',
         icon: '#687076',
         info: '#788B9B',
         okay: '#34C759',
@@ -26,7 +26,7 @@ export const Colors = {
 
     dark: {
         background: '#151718',
-        error: '#FF2C2C',
+        error: '#d85947',
         icon: '#9BA1A6',
         info: '#788B9B',
         okay: '#34C759',

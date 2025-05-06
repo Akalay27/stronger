@@ -17,6 +17,7 @@ const MAPPING = {
     'person.fill': 'person',
     'plus': 'add',
     'sparkles': 'auto-awesome',
+    'chevron.up': 'keyboard-arrow-up',
 } as Partial<
     Record<
         import('expo-symbols').SymbolViewProps['name'],
