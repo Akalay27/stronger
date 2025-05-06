@@ -66,35 +66,12 @@ export default function RootLayout() {
     if (!loaded) return null;
 
     return (
-        <GestureHandlerRootView>
-            <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-                <Stack>
-                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                    <Stack.Screen name="login/index" options={{ headerShown: false }} />
-                    <Stack.Screen
-                        name="active/index"
-                        options={{
-                            headerShown: false,
-                        }}
-                    />
-                    <Stack.Screen
-                        name="active/add-exercise"
-                        options={{
-                            headerShown: false,
-                        }}
-                    />
-                    <Stack.Screen
-                        name="active/finish-workout"
-                        options={{
-                            headerShown: false,
-                            headerTitle: "Finish Options",
-                            headerBackVisible: false,
-                        }}
-                    />
-                    <Stack.Screen name="+not-found" />
-                </Stack>
-                <StatusBar style="auto" />
-            </ThemeProvider>
-        </GestureHandlerRootView>
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+            <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="+not-found" />
+            </Stack>
+            <StatusBar style="auto" />
+        </ThemeProvider>
     );
 }

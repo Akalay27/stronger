@@ -44,14 +44,12 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="index"
                 options={{
-                    title: "Home",
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="house.fill" color={color} />
-                    ),
+                    title: "Start",
+                    tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
                 }}
             />
             <Tabs.Screen
-                name="adam-workouts"
+                name="workouts"
                 options={{
                     title: "Workouts",
                     tabBarIcon: ({ color }) => (
@@ -59,21 +57,11 @@ export default function TabLayout() {
                     ),
                 }}
             />
-            {/* testing page */}
             <Tabs.Screen
-                name="testing"
+                name="settings"
                 options={{
-                    title: "Testing",
+                    title: "Settings",
                     tabBarIcon: ({ color }) => <IconSymbol size={28} name="gear" color={color} />,
-                }}
-            />
-            <Tabs.Screen
-                name="workouts"
-                options={{
-                    title: "Explore",
-                    tabBarIcon: ({ color }) => (
-                        <IconSymbol size={28} name="paperplane.fill" color={color} />
-                    ),
                 }}
             />
         </Tabs>
