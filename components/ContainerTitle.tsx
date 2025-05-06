@@ -1,5 +1,5 @@
 import { PropsWithChildren, useState } from 'react';
-import { LayoutChangeEvent, StyleSheet, Text, type TextProps, View } from 'react-native';
+import { DimensionValue, LayoutChangeEvent, StyleSheet, Text, type TextProps, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 
@@ -11,15 +11,17 @@ export type ContainerTitleProps = TextProps & {
     darkColor?: string;
     gradientLeft?: string | keyof typeof Colors.light | keyof typeof Colors.dark;
     gradientRight?: string | keyof typeof Colors.light | keyof typeof Colors.dark;
+    widthOverride?: string | null;
 };
 
 export function ContainerTitle({
-    style,
-    lightColor,
+    children,
     darkColor,
     gradientLeft = 'text',
     gradientRight = 'text',
-    children
+    lightColor,
+    style,
+    widthOverride = null,
 }: ContainerTitleProps & PropsWithChildren) {
     const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
     const [textSize, setTextSize] = useState({ width: 0, height: 0 });
@@ -76,11 +78,11 @@ export function ContainerTitle({
         <MaskedView
             maskElement={
                 <View style={{
-                    height: textSize.height,
-
-                    width: textSize.width,
+                    width: (widthOverride != null ? widthOverride : 'auto') as DimensionValue,
                 }}>
                     <Text
+                        ellipsizeMode="tail"
+                        numberOfLines={1}
                         style={[
                             styles.text,
                             style,
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
 
         color: '#000',
 
-        fontSize: 20,
+        fontSize: 23,
         fontWeight: '800',
 
         textAlign: 'center',

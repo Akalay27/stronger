@@ -17,12 +17,16 @@ export function ContainerDescription({
     const color = useThemeColor({ light: lightColor, dark: darkColor }, 'tertiaryText');
 
     return (
-        <Text style={[
-            {
-                color: color,
-            },
-            styles.text
-        ]}>{children}</Text>
+        <Text
+            ellipsizeMode="clip"
+            numberOfLines={3}
+            style={[
+                {
+                    color: color,
+                },
+                styles.text
+            ]}
+        >{children}</Text>
     );
 }
 
