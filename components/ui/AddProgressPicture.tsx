@@ -3,8 +3,8 @@ import { Alert, type TextProps } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
 
-import { usePhotosByDate } from '@/hooks/usePhotosByDate';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { usePhotosByDate } from "@/hooks/usePhotosByDate";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 import { PrimaryContainer } from "@/components/PrimaryContainer";
 
@@ -25,8 +25,11 @@ export function AddProgressPicture({
     const pictureIconColor = useThemeColor({ light: "", dark: "" }, "tertiaryText");
 
     const openCameraAndSave = async () => {
-        if(!hasCameraPermission || !hasLibraryPermission) {
-            Alert.alert("Permissions Required!", "You need to grant camera and photo permissions first.");
+        if (!hasCameraPermission || !hasLibraryPermission) {
+            Alert.alert(
+                "Permissions Required!",
+                "You need to grant camera and photo permissions first.",
+            );
             return;
         }
 
@@ -36,8 +39,7 @@ export function AddProgressPicture({
             allowsEditing: false,
         });
 
-        if(result.canceled)
-            return;
+        if (result.canceled) return;
 
         setPhotoURI(result.assets[0].uri);
 
@@ -46,11 +48,9 @@ export function AddProgressPicture({
 
             const album = await MediaLibrary.getAlbumAsync("Stronger Progress Pictures");
 
-            if(album)
-                await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
-            else
-                await MediaLibrary.createAlbumAsync("Stronger Progress Pictures", asset, false);
-        } catch(err) {
+            if (album) await MediaLibrary.addAssetsToAlbumAsync([asset], album.id, false);
+            else await MediaLibrary.createAlbumAsync("Stronger Progress Pictures", asset, false);
+        } catch (err) {
             console.error(err);
 
             Alert.alert("Save Failed!", "We were unable to save your progress picture.");
@@ -59,7 +59,7 @@ export function AddProgressPicture({
             const currentDateString = currentDate.toLocaleDateString("en-US");
             const photosByDate = await usePhotosByDate(currentDate);
 
-            callback(prev => ({
+            callback((prev) => ({
                 ...prev,
                 [currentDateString]: photosByDate,
             }));
@@ -77,11 +77,8 @@ export function AddProgressPicture({
     }, []);
 
     return (
-        <PrimaryContainer
-            mainColor="info"
-            onPress={openCameraAndSave}
-        >
-            <IconSymbol name="plus" color={pictureIconColor} size={50}/>
+        <PrimaryContainer mainColor="info" onPress={openCameraAndSave}>
+            <IconSymbol name="plus" color={pictureIconColor} size={50} />
         </PrimaryContainer>
     );
-};
+}

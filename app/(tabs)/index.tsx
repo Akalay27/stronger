@@ -1,16 +1,16 @@
-import { StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated from 'react-native-reanimated';
+import { StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Animated from "react-native-reanimated";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 // TODO: Combine container elements into one
-import { VerticalSpacer } from '@/components/VerticalSpacer';
-import { Title } from '@/components/Title';
+import { VerticalSpacer } from "@/components/VerticalSpacer";
+import { Title } from "@/components/Title";
 
-import { GenerateButton } from '@/components/ui/GenerateButton';
+import { GenerateButton } from "@/components/ui/GenerateButton";
 import { InfoContainer } from "@/components/ui/InfoContainer";
-import { StartButton } from '@/components/ui/StartButton';
+import { StartButton } from "@/components/ui/StartButton";
 
 export default function HomeScreen() {
     const insets = useSafeAreaInsets();
@@ -18,28 +18,34 @@ export default function HomeScreen() {
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
 
     return (
-        <Animated.ScrollView style={{
-            backgroundColor: backgroundColor,
-            paddingTop: insets.top + 90,
-        }}>
-            <Title type='h1'>Start a Workout</Title>
+        <Animated.ScrollView
+            style={{
+                backgroundColor: backgroundColor,
+                paddingTop: insets.top + 90,
+            }}
+        >
+            <Title type="h1">Start a Workout</Title>
 
-            <VerticalSpacer gap={20}/>
+            <VerticalSpacer gap={20} />
 
-            <Title type='h2' lightColor='#888888'>Get Started</Title>
+            <Title type="h2" lightColor="#888888">
+                Get Started
+            </Title>
 
-            <VerticalSpacer gap={20}/>
+            <VerticalSpacer gap={20} />
 
-            <View style={[ styles.container ]}>
-                <StartButton/>
-                <GenerateButton/>
+            <View style={[styles.container]}>
+                <StartButton />
+                <GenerateButton />
             </View>
 
-            <VerticalSpacer gap={20}/>
+            <VerticalSpacer gap={20} />
 
-            <Title type='h2' lightColor='#888888'>Stored Templates</Title>
+            <Title type="h2" lightColor="#888888">
+                Stored Templates
+            </Title>
 
-            <VerticalSpacer gap={20}/>
+            <VerticalSpacer gap={20} />
 
             <View style={styles.container}>
                 <InfoContainer
@@ -60,7 +66,7 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: "row",
 
         gap: 10,
 

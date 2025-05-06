@@ -25,37 +25,37 @@ export function GoalSlider({
     titleText,
     units,
 }: GoalSliderProps & PropsWithChildren) {
-    const pickContainerColor = (): (keyof typeof Colors.light | keyof typeof Colors.dark) => {
-        if(progress < 0.3)
-            return "error";
+    const pickContainerColor = (): keyof typeof Colors.light | keyof typeof Colors.dark => {
+        if (progress < 0.3) return "error";
 
-        if(progress > 0.7)
-            return "okay";
+        if (progress > 0.7) return "okay";
 
         return "warning";
-    }
+    };
 
     return (
         <PrimaryContainer
             mainColor={pickContainerColor()}
             style={{
-                justifyContent: 'center',
+                justifyContent: "center",
             }}
         >
             <ContainerTitle
                 style={{
-                    fontWeight: '600',
+                    fontWeight: "600",
                 }}
                 widthOverride="100%"
-            >{titleText}</ContainerTitle>
-            <VerticalSpacer gap={40}/>
+            >
+                {titleText}
+            </ContainerTitle>
+            <VerticalSpacer gap={40} />
             <ProgressSlider
                 leftValue={leftValue}
                 progress={progress}
                 rightValue={rightValue}
                 units={units}
             />
-            <VerticalSpacer gap={20}/>
+            <VerticalSpacer gap={20} />
         </PrimaryContainer>
     );
-};
+}

@@ -1,9 +1,9 @@
-import { PropsWithChildren } from 'react';
-import { StyleSheet, type TextProps, TouchableOpacity, ViewStyle } from 'react-native';
+import { PropsWithChildren } from "react";
+import { StyleSheet, type TextProps, TouchableOpacity, ViewStyle } from "react-native";
 
-import { Colors } from '@/constants/Colors';
-import { HexToRGBA } from '@/constants/ConvertColor';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from "@/constants/Colors";
+import { HexToRGBA } from "@/constants/ConvertColor";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type TitleProps = TextProps & {
     lightColor?: string;
@@ -16,7 +16,7 @@ export function PrimaryContainer({
     darkColor,
     children,
     lightColor,
-    mainColor = 'primary',
+    mainColor = "primary",
     onPress,
     padding = 20,
     style,
@@ -39,7 +39,7 @@ export function PrimaryContainer({
         >
             {children}
         </TouchableOpacity>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         borderWidth: 3,
 
-        flexDirection: 'row',
-        flexWrap: 'wrap',
+        flexDirection: "row",
+        flexWrap: "wrap",
     },
 });

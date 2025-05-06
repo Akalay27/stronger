@@ -31,44 +31,46 @@ export function InfoContainer({
 
     return (
         <PrimaryContainer
-            mainColor={'info'}
+            mainColor={"info"}
             onPress={onPress}
-            style={{ 
+            style={{
                 flex: 1,
-                flexDirection: 'row',
-                justifyContent: 'space-between',
+                flexDirection: "row",
+                justifyContent: "space-between",
                 padding: 10,
                 paddingLeft: 10,
             }}
         >
-            <View style={{
-                alignItems: 'flex-start',
-                flexDirection: 'row',
-            }}>
+            <View
+                style={{
+                    alignItems: "flex-start",
+                    flexDirection: "row",
+                }}
+            >
                 <ContainerTitle
-                    gradientLeft={'text'}
-                    gradientRight={'text'}
+                    gradientLeft={"text"}
+                    gradientRight={"text"}
                     style={{
                         fontSize: 20,
-                        fontWeight: '700',
+                        fontWeight: "700",
 
-                        textAlign: 'left',
+                        textAlign: "left",
                     }}
-                >{titleText}</ContainerTitle>
-                <MoreInfoButton
-                    onPress={moreInfoOnPress}
-                />
+                >
+                    {titleText}
+                </ContainerTitle>
+                <MoreInfoButton onPress={moreInfoOnPress} />
             </View>
-            <VerticalSpacer gap={10}/>
+            <VerticalSpacer gap={10} />
             <ContainerDescription>{descriptionText}</ContainerDescription>
-            <VerticalSpacer gap={10}/>
-            {timerText && 
+            <VerticalSpacer gap={10} />
+            {timerText && (
                 <ContainerDescription>
-                    <IconSymbol color={color} name="clock.fill" size={13}/>
-                    <HorizontalSpacer gap={5}/>
+                    <IconSymbol color={color} name="clock.fill" size={13} />
+                    <HorizontalSpacer gap={5} />
                     {timerText}
                 </ContainerDescription>
-            }
+            )}
         </PrimaryContainer>
     );
-};
+}

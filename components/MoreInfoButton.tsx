@@ -1,8 +1,8 @@
-import { PropsWithChildren } from 'react';
-import { StyleSheet, Text, type TextProps, TouchableOpacity, ViewStyle } from 'react-native';
+import { PropsWithChildren } from "react";
+import { StyleSheet, Text, type TextProps, TouchableOpacity, ViewStyle } from "react-native";
 
-import { Colors } from '@/constants/Colors';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type MoreInfoButtonProps = TextProps & {
     lightColor?: string;
@@ -14,26 +14,17 @@ export type MoreInfoButtonProps = TextProps & {
 export function MoreInfoButton({
     darkColor,
     lightColor,
-    mainColor = 'primary',
+    mainColor = "primary",
     onPress,
     style,
 }: MoreInfoButtonProps & PropsWithChildren) {
-    const color = useThemeColor({ light: lightColor, dark: darkColor }, 'tertiaryText');
+    const color = useThemeColor({ light: lightColor, dark: darkColor }, "tertiaryText");
 
     return (
-        <TouchableOpacity
-            onPress={onPress}
-            style={[
-                styles.container,
-                style as ViewStyle,
-            ]}
-        >
-        <Text style={[
-            { color: color },
-            styles.text,
-        ]}>...</Text>
+        <TouchableOpacity onPress={onPress} style={[styles.container, style as ViewStyle]}>
+            <Text style={[{ color: color }, styles.text]}>...</Text>
         </TouchableOpacity>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -42,20 +33,20 @@ const styles = StyleSheet.create({
 
         includeFontPadding: false,
 
-        marginLeft: 'auto',
+        marginLeft: "auto",
 
-        overflow: 'visible',
+        overflow: "visible",
     },
     text: {
         fontSize: 20,
-        fontWeight: '800',
+        fontWeight: "800",
 
         includeFontPadding: false,
 
         lineHeight: 15,
 
-        overflow: 'visible',
+        overflow: "visible",
 
-        textAlign: 'right',
+        textAlign: "right",
     },
 });

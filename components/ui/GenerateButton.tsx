@@ -25,24 +25,19 @@ export function GenerateButton({
 
     return (
         <PrimaryContainer
-            mainColor={'secondary'}
+            mainColor={"secondary"}
             onPress={onPress}
             style={{
                 flex: 1,
-                justifyContent: 'center',
+                justifyContent: "center",
             }}
         >
-            <ContainerTitle
-                gradientLeft={'#9B5DFF'}
-                gradientRight={'#EA00B0'}
-            >{titleText}</ContainerTitle>
-            <VerticalSpacer gap={40}/>
-            <Break/>
-            <IconSymbol
-                color={color}
-                name={icon}
-                size={40}
-            />
+            <ContainerTitle gradientLeft={"#9B5DFF"} gradientRight={"#EA00B0"}>
+                {titleText}
+            </ContainerTitle>
+            <VerticalSpacer gap={40} />
+            <Break />
+            <IconSymbol color={color} name={icon} size={40} />
         </PrimaryContainer>
     );
-};
+}

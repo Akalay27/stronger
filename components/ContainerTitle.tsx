@@ -1,10 +1,17 @@
-import { PropsWithChildren, useState } from 'react';
-import { DimensionValue, LayoutChangeEvent, StyleSheet, Text, type TextProps, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import MaskedView from '@react-native-masked-view/masked-view';
+import { PropsWithChildren, useState } from "react";
+import {
+    DimensionValue,
+    LayoutChangeEvent,
+    StyleSheet,
+    Text,
+    type TextProps,
+    View,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import MaskedView from "@react-native-masked-view/masked-view";
 
-import { Colors } from '@/constants/Colors';
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { Colors } from "@/constants/Colors";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ContainerTitleProps = TextProps & {
     lightColor?: string;
@@ -17,77 +24,74 @@ export type ContainerTitleProps = TextProps & {
 export function ContainerTitle({
     children,
     darkColor,
-    gradientLeft = 'text',
-    gradientRight = 'text',
+    gradientLeft = "text",
+    gradientRight = "text",
     lightColor,
     style,
     widthOverride = null,
 }: ContainerTitleProps & PropsWithChildren) {
-    const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+    const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
     const [textSize, setTextSize] = useState({ width: 0, height: 0 });
 
     const onTextLayout = (e: LayoutChangeEvent) => {
         const { width, height } = e.nativeEvent.layout;
 
         setTextSize({ width, height });
-    }
+    };
 
     const gradLeft = () => {
         let finalGradient = gradientLeft;
 
-        if(gradientLeft in Colors.light) {
+        if (gradientLeft in Colors.light) {
             finalGradient = Colors.light[gradientLeft as keyof typeof Colors.light];
-        } else if(gradientLeft in Colors.dark) {
+        } else if (gradientLeft in Colors.dark) {
             finalGradient = Colors.dark[gradientLeft as keyof typeof Colors.dark];
         }
 
         return finalGradient;
-    }
+    };
 
     const gradRight = () => {
         let finalGradient = gradientRight;
 
-        if(gradientRight in Colors.light) {
+        if (gradientRight in Colors.light) {
             finalGradient = Colors.light[gradientRight as keyof typeof Colors.light];
-        } else if(gradientRight in Colors.dark) {
+        } else if (gradientRight in Colors.dark) {
             finalGradient = Colors.dark[gradientRight as keyof typeof Colors.dark];
         }
 
         return finalGradient;
-    }
+    };
 
     if (textSize.width === 0 || textSize.height === 0) {
         // Render hidden text to measure
         return (
-        <Text
-            onLayout={onTextLayout}
-            style={[
-                {
-                    position: 'absolute',
-                    opacity: 0, // invisible but still renders
-                },
-                styles.text,
-            ]}
-        >
-            {children}
-        </Text>
+            <Text
+                onLayout={onTextLayout}
+                style={[
+                    {
+                        position: "absolute",
+                        opacity: 0, // invisible but still renders
+                    },
+                    styles.text,
+                ]}
+            >
+                {children}
+            </Text>
         );
     }
 
     return (
         <MaskedView
             maskElement={
-                <View style={{
-                    width: (widthOverride != null ? widthOverride : 'auto') as DimensionValue,
-                }}>
-                    <Text
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                        style={[
-                            styles.text,
-                            style,
-                        ]}
-                    >{children}</Text>
+                <View
+                    style={{
+                        width: (widthOverride != null ? widthOverride : "auto") as DimensionValue,
+                    }}
+                >
+                    <Text ellipsizeMode="tail" numberOfLines={1} style={[styles.text, style]}>
+                        {children}
+                    </Text>
                 </View>
             }
         >
@@ -101,22 +105,22 @@ export function ContainerTitle({
                 }}
             />
         </MaskedView>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
     maskedView: {
-        alignItems: 'center',
+        alignItems: "center",
         flex: 1,
     },
     text: {
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
 
-        color: '#000',
+        color: "#000",
 
         fontSize: 23,
-        fontWeight: '800',
+        fontWeight: "800",
 
-        textAlign: 'center',
+        textAlign: "center",
     },
 });

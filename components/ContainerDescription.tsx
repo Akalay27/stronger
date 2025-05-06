@@ -1,7 +1,7 @@
-import { PropsWithChildren } from 'react';
-import { StyleSheet, Text, type TextProps } from 'react-native';
+import { PropsWithChildren } from "react";
+import { StyleSheet, Text, type TextProps } from "react-native";
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 export type ContainerDescriptionProps = TextProps & {
     lightColor?: string;
@@ -12,9 +12,9 @@ export function ContainerDescription({
     style,
     lightColor,
     darkColor,
-    children
+    children,
 }: ContainerDescriptionProps & PropsWithChildren) {
-    const color = useThemeColor({ light: lightColor, dark: darkColor }, 'tertiaryText');
+    const color = useThemeColor({ light: lightColor, dark: darkColor }, "tertiaryText");
 
     return (
         <Text
@@ -24,21 +24,23 @@ export function ContainerDescription({
                 {
                     color: color,
                 },
-                styles.text
+                styles.text,
             ]}
-        >{children}</Text>
+        >
+            {children}
+        </Text>
     );
 }
 
 const styles = StyleSheet.create({
     text: {
         fontSize: 13,
-        fontWeight: '500',
+        fontWeight: "500",
 
         lineHeight: 20,
 
-        textAlign: 'left',
+        textAlign: "left",
 
-        width: '100%',
+        width: "100%",
     },
 });
