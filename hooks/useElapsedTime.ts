@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 
-function useElapsedTime(startTime: number): String {
+function useElapsedTime(startTime: number): string {
     const [elapsedTime, setElapsedTime] = useState(0);
 
     useEffect(() => {
         const start = startTime;
+
+        // Set immediately on mount
+        setElapsedTime(Date.now() - start);
+
         const interval = setInterval(() => {
             setElapsedTime(Date.now() - start);
         }, 1000);

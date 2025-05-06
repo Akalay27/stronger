@@ -9,10 +9,17 @@ import { IconSymbol } from '../ui/IconSymbol';
 
 interface CustomHeaderProps {
     title: string;
-    onEndWorkout: () => void;
+    rightButtonText?: string;
+    onRightButton: () => void;
+    rightButtonDisabled?: boolean;
 }
 
-export const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onEndWorkout }) => {
+export const CustomHeader: React.FC<CustomHeaderProps> = ({
+    title,
+    rightButtonText,
+    onRightButton: onEndWorkout,
+    rightButtonDisabled,
+}) => {
     const insets = useSafeAreaInsets();
 
     return (
@@ -35,8 +42,15 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({ title, onEndWorkout 
             </View>
 
             <View style={styles.sideContainer}>
-                <TouchableOpacity onPress={onEndWorkout}>
-                    <ThemedText style={styles.endText}>Finish</ThemedText>
+                <TouchableOpacity onPress={onEndWorkout} disabled={rightButtonDisabled}>
+                    <ThemedText
+                        style={
+                            (styles.endText,
+                            rightButtonDisabled ? styles.endTextDisabled : styles.endText)
+                        }
+                    >
+                        {rightButtonText}
+                    </ThemedText>
                 </TouchableOpacity>
             </View>
         </ThemedView>
@@ -87,6 +101,9 @@ const styles = StyleSheet.create({
         color: '#1e88e5',
         fontSize: 16,
         textAlign: 'right',
+    },
+    endTextDisabled: {
+        color: '#ccc',
     },
 });
 

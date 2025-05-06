@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { ActivityIndicator, Alert, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
-import { useFocusEffect, useNavigation } from 'expo-router';
-import Animated from 'react-native-reanimated';
+import React, { useState, useEffect, useCallback } from "react";
+import { ActivityIndicator, Alert, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { useFocusEffect, useNavigation } from "expo-router";
+import Animated from "react-native-reanimated";
 
-import { ContainerText } from '@/components/ContainerText';
-import { PrimaryContainer } from '@/components/PrimaryContainer';
-import { Spacer } from '@/components/Spacer';
-import { Title } from '@/components/Title';
-import { ThemedText } from '@/components/ThemedText';
-import { Button } from '@rneui/themed';
-import { initDatabase, getActiveWorkout, createWorkout, Workout } from '@/lib/database';
-import { ThemedView } from '@/components/ThemedView';
+import { ContainerText } from "@/components/ContainerText";
+import { PrimaryContainer } from "@/components/PrimaryContainer";
+import { Spacer } from "@/components/Spacer";
+import { Title } from "@/components/Title";
+import { ThemedText } from "@/components/ThemedText";
+import { Button } from "@rneui/themed";
+import { initDatabase, getActiveWorkout, createWorkout, Workout } from "@/lib/database";
+import { ThemedView } from "@/components/ThemedView";
 
 export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();
@@ -20,7 +20,7 @@ export default function WorkoutsScreen() {
     const [loading, setLoading] = useState(true);
     const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
     const [showNameInput, setShowNameInput] = useState(false);
-    const [workoutName, setWorkoutName] = useState('');
+    const [workoutName, setWorkoutName] = useState("");
 
     // Initialize database and check for active workout
     useEffect(() => {
@@ -29,7 +29,7 @@ export default function WorkoutsScreen() {
                 await initDatabase();
                 await checkActiveWorkout();
             } catch (error) {
-                console.error('Error setting up database:', error);
+                console.error("Error setting up database:", error);
             } finally {
                 setLoading(false);
             }
@@ -52,13 +52,13 @@ export default function WorkoutsScreen() {
             const workout = await getActiveWorkout();
             setActiveWorkout(workout);
         } catch (error) {
-            console.error('Error checking active workout:', error);
+            console.error("Error checking active workout:", error);
         }
     };
 
     const handleStartWorkout = async () => {
         if (!workoutName.trim()) {
-            Alert.alert('Error', 'Please enter a workout name');
+            Alert.alert("Error", "Please enter a workout name");
             return;
         }
 
@@ -67,25 +67,25 @@ export default function WorkoutsScreen() {
             const workoutId = await createWorkout(workoutName.trim());
 
             // Reset the input field
-            setWorkoutName('');
+            setWorkoutName("");
             setShowNameInput(false);
             checkActiveWorkout(); // Refresh active workout state
 
             // Navigate to active workout screen with the workout ID
             router.push({
-                pathname: '/active',
+                pathname: "/active",
                 params: { workoutId },
             });
         } catch (error) {
-            console.error('Error creating workout:', error);
-            Alert.alert('Error', 'Failed to create workout. Please try again.');
+            console.error("Error creating workout:", error);
+            Alert.alert("Error", "Failed to create workout. Please try again.");
         }
     };
 
     const handleResumeWorkout = () => {
         if (activeWorkout) {
             router.push({
-                pathname: '/active',
+                pathname: "/active",
                 params: { workoutId: activeWorkout.id },
             });
         }
@@ -93,7 +93,7 @@ export default function WorkoutsScreen() {
 
     if (loading) {
         return (
-            <ThemedView style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                 <ActivityIndicator size="large" />
             </ThemedView>
         );
@@ -119,7 +119,7 @@ export default function WorkoutsScreen() {
                             <Button
                                 title="Resume Workout"
                                 onPress={handleResumeWorkout}
-                                buttonStyle={{ backgroundColor: '#4CAF50' }}
+                                buttonStyle={{ backgroundColor: "#4CAF50" }}
                             />
                         </PrimaryContainer>
                     </>
@@ -137,7 +137,7 @@ export default function WorkoutsScreen() {
                                     style={{
                                         height: 40,
                                         borderWidth: 1,
-                                        borderColor: '#ddd',
+                                        borderColor: "#ddd",
                                         borderRadius: 4,
                                         padding: 8,
                                         marginVertical: 10,
@@ -146,14 +146,14 @@ export default function WorkoutsScreen() {
                                     onChangeText={setWorkoutName}
                                     placeholder="e.g., Leg Day, Upper Body, etc."
                                 />
-                                <View style={{ flexDirection: 'row', gap: 10 }}>
+                                <View style={{ flexDirection: "row", gap: 10 }}>
                                     <Button
                                         title="Cancel"
                                         onPress={() => {
                                             setShowNameInput(false);
-                                            setWorkoutName('');
+                                            setWorkoutName("");
                                         }}
-                                        buttonStyle={{ backgroundColor: '#f44336' }}
+                                        buttonStyle={{ backgroundColor: "#f44336" }}
                                         containerStyle={{ flex: 1 }}
                                     />
                                     <Button
@@ -168,7 +168,7 @@ export default function WorkoutsScreen() {
                             <Button
                                 title="Start New Workout"
                                 onPress={() => setShowNameInput(true)}
-                                buttonStyle={{ backgroundColor: '#1e88e5' }}
+                                buttonStyle={{ backgroundColor: "#1e88e5" }}
                             />
                         )}
                     </>

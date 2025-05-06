@@ -1,8 +1,9 @@
-import * as SQLite from 'expo-sqlite';
-import { supabase } from './supabase';
-import NetInfo from '@react-native-community/netinfo';
+import * as SQLite from "expo-sqlite";
+import { supabase } from "./supabase";
+import NetInfo from "@react-native-community/netinfo";
+import exerciseTypes from "@/assets/data/exercises.json";
 // Open the database
-const db = SQLite.openDatabaseSync('workouts.db');
+export const db = SQLite.openDatabaseSync("workouts.db");
 
 // Type definitions
 export interface WorkoutSet {
@@ -13,6 +14,7 @@ export interface WorkoutSet {
     exercise_id: number;
     synced?: boolean;
     supabase_id?: string;
+    is_template: boolean;
 }
 
 export interface Exercise {
@@ -32,45 +34,92 @@ export interface Workout {
     supabase_id?: string;
 }
 
+export interface ExerciseType {
+    id: string;
+    name: string;
+    instructions: string[];
+    primaryMuscles: string[];
+    secondaryMuscles: string[];
+    level: string;
+}
+
+export const seedExerciseTypes = async () => {
+    for (const type of exerciseTypes) {
+        await db.runAsync(
+            `INSERT OR REPLACE INTO exercise_types (
+        id, name, instructions, primaryMuscles, secondaryMuscles, level
+      ) VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+                type.id,
+                type.name,
+                JSON.stringify(type.instructions),
+                JSON.stringify(type.primaryMuscles),
+                JSON.stringify(type.secondaryMuscles),
+                type.level,
+            ],
+        );
+    }
+};
+
 // Initialize the database
 export const initDatabase = async (): Promise<void> => {
     // Create workouts table
     await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS workouts (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      start_time INTEGER NOT NULL,
-      active INTEGER DEFAULT 1,
-      synced INTEGER DEFAULT 0,
-      supabase_id TEXT
-    );
+        CREATE TABLE IF NOT EXISTS workouts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            start_time INTEGER NOT NULL,
+            active INTEGER DEFAULT 1,
+            synced INTEGER DEFAULT 0,
+            supabase_id TEXT,
+            is_template INTEGER DEFAULT 0
+        );
   `);
 
     // Create exercises table
     await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS exercises (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      type TEXT NOT NULL,
-      workout_id INTEGER NOT NULL,
-      synced INTEGER DEFAULT 0,
-      supabase_id TEXT,
-      FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE
-    );
+        CREATE TABLE IF NOT EXISTS exercises (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            type TEXT NOT NULL,
+            workout_id INTEGER NOT NULL,
+            synced INTEGER DEFAULT 0,
+            supabase_id TEXT,
+            FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE
+        );
   `);
 
     // Create sets table
     await db.execAsync(`
-    CREATE TABLE IF NOT EXISTS sets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      weight REAL NOT NULL,
-      reps INTEGER NOT NULL,
-      completed INTEGER DEFAULT 0,
-      exercise_id INTEGER NOT NULL,
-      synced INTEGER DEFAULT 0,
-      supabase_id TEXT,
-      FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE
-    );
+        CREATE TABLE IF NOT EXISTS sets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            weight REAL,
+            reps INTEGER,
+            completed INTEGER DEFAULT 0,
+            exercise_id INTEGER NOT NULL,
+            synced INTEGER DEFAULT 0,
+            supabase_id TEXT,
+            FOREIGN KEY (exercise_id) REFERENCES exercises (id) ON DELETE CASCADE
+        );
   `);
+
+    await db.execAsync(`
+        CREATE TABLE IF NOT EXISTS exercise_types (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            instructions TEXT, -- Store as JSON string
+            primaryMuscles TEXT, -- JSON string
+            secondaryMuscles TEXT, -- JSON string
+            level TEXT
+        );
+    `);
+
+    const existing = await db.getAllAsync<{ count: number }>(
+        `SELECT COUNT(*) as count FROM exercise_types`,
+    );
+    if (existing[0]?.count === 0) {
+        console.log("Seeding exercise types");
+        await seedExerciseTypes();
+    }
 };
 
 // Check if device is online
@@ -93,10 +142,10 @@ export const addWorkoutSet = async (
         try {
             const user = await supabase.auth.getUser(); // Async method
             if (!user.data.user) {
-                throw new Error('User not authenticated');
+                throw new Error("User not authenticated");
             }
             const { data, error } = await supabase
-                .from('workout_sets')
+                .from("workout_sets")
                 .insert({
                     exercise_type: exerciseType,
                     weight,
@@ -104,13 +153,13 @@ export const addWorkoutSet = async (
                     created_at: new Date(createdAt).toISOString(),
                     user_id: user?.data.user?.id, // Assuming user ID is available
                 })
-                .select('id')
+                .select("id")
                 .single();
             if (error) throw error;
             supabaseId = data.id;
             synced = true;
         } catch (err) {
-            console.error('Error syncing with Supabase:', err);
+            console.error("Error syncing with Supabase:", err);
         }
     }
 
@@ -146,12 +195,12 @@ export const deleteWorkoutSet = async (id: number): Promise<void> => {
     if (set?.supabase_id && (await isOnline())) {
         try {
             const { error } = await supabase
-                .from('workout_sets')
+                .from("workout_sets")
                 .delete()
-                .eq('id', set.supabase_id);
+                .eq("id", set.supabase_id);
             if (error) throw error;
         } catch (err) {
-            console.error('Error deleting from Supabase:', err);
+            console.error("Error deleting from Supabase:", err);
         }
     }
 
@@ -162,11 +211,48 @@ export const deleteWorkoutSet = async (id: number): Promise<void> => {
 export const createWorkout = async (name: string): Promise<number> => {
     const startTime = Date.now();
     const result = await db.runAsync(
-        `INSERT INTO workouts (name, start_time, active, synced)
-     VALUES (?, ?, 1, 0)`,
+        `INSERT INTO workouts (name, start_time, active, synced, is_template)
+     VALUES (?, ?, 1, 0, 0)`,
         [name, startTime],
     );
     return result.lastInsertRowId;
+};
+
+export const createFromTemplate = async (templateId: number): Promise<number> => {
+    // Fetch the template workout
+    const [templateWorkout] = await db.getAllAsync<Workout>(
+        `SELECT * FROM workouts WHERE id = ? AND is_template = 1`,
+        [templateId],
+    );
+    if (!templateWorkout) {
+        throw new Error("Template workout not found");
+    }
+
+    // Create a new workout based on the template
+    const newWorkoutId = await createWorkout(templateWorkout.name);
+
+    // Fetch exercises from the template workout
+    const templateExercises = await getExercisesByWorkout(templateId);
+
+    for (const templateExercise of templateExercises) {
+        // Add each exercise to the new workout
+        const newExerciseId = await addExercise(newWorkoutId, templateExercise.type);
+
+        // Fetch sets from the template exercise
+        const templateSets = await getSetsByExercise(templateExercise.id);
+
+        for (const templateSet of templateSets) {
+            // Add each set to the new exercise
+            await addSet(
+                newExerciseId,
+                templateSet.weight,
+                templateSet.reps,
+                templateSet.completed,
+            );
+        }
+    }
+
+    return newWorkoutId;
 };
 
 // Get active workout
@@ -190,6 +276,17 @@ export const getAllWorkouts = async (): Promise<Workout[]> => {
     }));
 };
 
+export const getAllTemplates = async (): Promise<Workout[]> => {
+    const rows = await db.getAllAsync<Workout>(
+        `SELECT * FROM workouts WHERE is_template = 1 ORDER BY start_time DESC`,
+    );
+    return rows.map((row) => ({
+        ...row,
+        active: !!row.active,
+        synced: !!row.synced,
+    }));
+};
+
 export const syncWorkoutById = async (workoutId: number): Promise<void> => {
     const [workout] = await db.getAllAsync<Workout>(`SELECT * FROM workouts WHERE id = ?`, [
         workoutId,
@@ -198,18 +295,18 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
 
     try {
         const user = await supabase.auth.getUser();
-        if (!user.data.user) throw new Error('Not authenticated');
+        if (!user.data.user) throw new Error("Not authenticated");
 
         // Sync workout
         const { data: workoutData, error: workoutError } = await supabase
-            .from('workouts')
+            .from("workouts")
             .insert({
                 name: workout.name,
                 start_time: new Date(workout.start_time).toISOString(),
                 active: false,
                 user_id: user.data.user.id,
             })
-            .select('id')
+            .select("id")
             .single();
         if (workoutError) throw workoutError;
 
@@ -224,12 +321,12 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
         const exercises = await getExercisesByWorkout(workout.id);
         for (const exercise of exercises) {
             const { data: exerciseData, error: exerciseError } = await supabase
-                .from('exercises')
+                .from("exercises")
                 .insert({
                     type: exercise.type,
                     workout_id: supabaseWorkoutId,
                 })
-                .select('id')
+                .select("id")
                 .single();
             if (exerciseError) throw exerciseError;
 
@@ -243,14 +340,14 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
             const sets = await getSetsByExercise(exercise.id);
             for (const set of sets) {
                 const { data: setData, error: setError } = await supabase
-                    .from('sets')
+                    .from("sets")
                     .insert({
                         weight: set.weight,
                         reps: set.reps,
                         completed: set.completed,
                         exercise_id: supabaseExerciseId,
                     })
-                    .select('id')
+                    .select("id")
                     .single();
                 if (setError) throw setError;
 
@@ -261,18 +358,29 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
             }
         }
     } catch (err) {
-        console.error('Error syncing workout:', err);
+        console.error("Error syncing workout:", err);
     }
 };
 
 // End a workout (mark as inactive)
-export const endWorkout = async (id: number): Promise<void> => {
-    await db.runAsync(`UPDATE workouts SET active = 0 WHERE id = ?`, [id]);
+export const endWorkout = async (id: number, is_template: boolean): Promise<void> => {
+    await db.runAsync(`UPDATE workouts SET active = 0, is_template = ? WHERE id = ?`, [
+        is_template ? 1 : 0,
+        id,
+    ]);
 
     // Try immediate sync
     if (await isOnline()) {
         await syncWorkoutById(id);
     }
+};
+
+// Get workout count
+export const getWorkoutCount = async (): Promise<number> => {
+    const [result] = await db.getAllAsync<{ count: number }>(
+        `SELECT COUNT(*) as count FROM workouts`,
+    );
+    return result.count;
 };
 
 export const deleteWorkout = async (id: number): Promise<void> => {
@@ -281,12 +389,12 @@ export const deleteWorkout = async (id: number): Promise<void> => {
     if (workout.supabase_id && (await isOnline())) {
         try {
             const { error } = await supabase
-                .from('workouts')
+                .from("workouts")
                 .delete()
-                .eq('id', workout.supabase_id);
+                .eq("id", workout.supabase_id);
             if (error) throw error;
         } catch (err) {
-            console.error('Error deleting workout from Supabase:', err);
+            console.error("Error deleting workout from Supabase:", err);
         }
     }
     await db.runAsync(`DELETE FROM workouts WHERE id = ?`, [id]);
@@ -301,7 +409,7 @@ export const syncUnsyncedWorkouts = async (): Promise<void> => {
         try {
             await syncWorkoutById(workout.id);
         } catch (err) {
-            console.error('Error syncing unsynced workout:', err);
+            console.error("Error syncing unsynced workout:", err);
         }
     }
 };
@@ -320,6 +428,15 @@ export const addExercise = async (workoutId: number, type: string): Promise<numb
     return result.lastInsertRowId;
 };
 
+export const addExercises = async (workoutId: number, types: string[]): Promise<number[]> => {
+    const exerciseIds: number[] = [];
+    for (const type of types) {
+        const exerciseId = await addExercise(workoutId, type);
+        exerciseIds.push(exerciseId);
+    }
+    return exerciseIds;
+};
+
 // Get exercises for a workout
 export const getExercisesByWorkout = async (workoutId: number): Promise<Exercise[]> => {
     const rows = await db.getAllAsync<Exercise>(
@@ -336,19 +453,19 @@ export const deleteExercise = async (id: number): Promise<void> => {
     if (exercise?.supabase_id && (await isOnline())) {
         try {
             const { error } = await supabase
-                .from('exercises')
+                .from("exercises")
                 .delete()
-                .eq('id', exercise.supabase_id);
+                .eq("id", exercise.supabase_id);
             if (error) throw error;
         } catch (err) {
-            console.error('Error deleting exercise from Supabase:', err);
+            console.error("Error deleting exercise from Supabase:", err);
         }
     }
 
     await db.runAsync(`DELETE FROM exercises WHERE id = ?`, [id]);
 };
 
-// ----- SET FUNCTIONS -----
+// ----- (exercise) SET FUNCTIONS -----
 
 // Add a new set to an exercise
 export const addSet = async (
@@ -366,6 +483,27 @@ export const addSet = async (
         [weight, reps, completed ? 1 : 0, exerciseId, synced ? 1 : 0, supabaseId],
     );
     return result.lastInsertRowId;
+};
+
+// Update a set
+export const updateSet = async (id: number, weight: number, reps: number): Promise<void> => {
+    await db.runAsync(`UPDATE sets SET weight = ?, reps = ? WHERE id = ?`, [weight, reps, id]);
+
+    if (await isOnline()) {
+        const [set] = await db.getAllAsync<WorkoutSet>(`SELECT * FROM sets WHERE id = ?`, [id]);
+
+        if (set?.supabase_id) {
+            try {
+                const { error } = await supabase
+                    .from("sets")
+                    .update({ weight, reps })
+                    .eq("id", set.supabase_id);
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error updating set in Supabase:", err);
+            }
+        }
+    }
 };
 
 // Get sets for an exercise
@@ -391,12 +529,12 @@ export const updateSetCompletion = async (id: number, completed: boolean): Promi
         if (set?.supabase_id) {
             try {
                 const { error } = await supabase
-                    .from('sets')
+                    .from("sets")
                     .update({ completed })
-                    .eq('id', set.supabase_id);
+                    .eq("id", set.supabase_id);
                 if (error) throw error;
             } catch (err) {
-                console.error('Error updating set in Supabase:', err);
+                console.error("Error updating set in Supabase:", err);
             }
         }
     }
@@ -408,12 +546,35 @@ export const deleteSet = async (id: number): Promise<void> => {
 
     if (set?.supabase_id && (await isOnline())) {
         try {
-            const { error } = await supabase.from('sets').delete().eq('id', set.supabase_id);
+            const { error } = await supabase.from("sets").delete().eq("id", set.supabase_id);
             if (error) throw error;
         } catch (err) {
-            console.error('Error deleting set from Supabase:', err);
+            console.error("Error deleting set from Supabase:", err);
         }
     }
 
     await db.runAsync(`DELETE FROM sets WHERE id = ?`, [id]);
+};
+
+// ----- EXERCISE TYPE FUNCTIONS -----
+
+export const getExerciseTypes = async (): Promise<ExerciseType[]> => {
+    const rows = await db.getAllAsync<any>(`SELECT * FROM exercise_types`);
+    return rows.map((row) => ({
+        ...row,
+        instructions: JSON.parse(row.instructions),
+        primaryMuscles: JSON.parse(row.primaryMuscles),
+        secondaryMuscles: JSON.parse(row.secondaryMuscles),
+    }));
+};
+
+export const getExerciseTypeById = async (id: string): Promise<ExerciseType | null> => {
+    const [row] = await db.getAllAsync<any>(`SELECT * FROM exercise_types WHERE id = ?`, [id]);
+    if (!row) return null;
+    return {
+        ...row,
+        instructions: JSON.parse(row.instructions),
+        primaryMuscles: JSON.parse(row.primaryMuscles),
+        secondaryMuscles: JSON.parse(row.secondaryMuscles),
+    };
 };

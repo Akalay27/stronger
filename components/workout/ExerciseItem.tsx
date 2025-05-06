@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, FlatList, View } from 'react-native';
+import { StyleSheet, FlatList, View, TouchableOpacity } from 'react-native';
 import { Button, Icon } from '@rneui/themed';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
@@ -8,17 +8,15 @@ import { Exercise, WorkoutSet } from '@/lib/database';
 import SetItem from './SetItem';
 import AddSetForm from './AddSetForm';
 import { IconSymbol } from '../ui/IconSymbol';
-
-interface ExerciseWithSets extends Exercise {
-    sets: WorkoutSet[];
-}
+import { ExerciseWithSetsAndTypeName } from '@/app/active';
 
 interface ExerciseItemProps {
-    exercise: ExerciseWithSets;
+    exercise: ExerciseWithSetsAndTypeName;
     onDeleteExercise: (exerciseId: number) => void;
     onAddSet: (exerciseId: number, weight: string, reps: string) => void;
     onSetCompletion: (setId: number, completed: boolean) => void;
     onDeleteSet: (setId: number) => void;
+    onHelp: () => void;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -27,6 +25,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
     onAddSet,
     onSetCompletion,
     onDeleteSet,
+    onHelp,
 }) => {
     const [addingSet, setAddingSet] = useState(false);
 
@@ -38,7 +37,12 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
     return (
         <ThemedView style={styles.exerciseItem}>
             <View style={styles.exerciseHeader}>
-                <ThemedText type="subtitle">{exercise.type}</ThemedText>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <ThemedText type="subtitle">{exercise.type_name}</ThemedText>
+                    <TouchableOpacity onPress={onHelp} style={styles.helpIcon}>
+                        <IconSymbol name="info" size={15} color="#888" />
+                    </TouchableOpacity>
+                </View>
                 <Button
                     type="clear"
                     icon={<IconSymbol name="trash" size={22} color="red" />}
@@ -98,6 +102,11 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         color: '#999',
         marginVertical: 8,
+    },
+    helpIcon: {
+        padding: 2,
+        borderRadius: 10,
+        backgroundColor: '#ffffff',
     },
 });
 

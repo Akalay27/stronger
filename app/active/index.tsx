@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from "react";
 import {
     StyleSheet,
     FlatList,
@@ -8,9 +8,10 @@ import {
     KeyboardAvoidingView,
     Alert,
     View,
-} from 'react-native';
-import { useFocusEffect, useLocalSearchParams, router } from 'expo-router';
-import { ThemedView } from '@/components/ThemedView';
+} from "react-native";
+import { Button } from "@rneui/themed";
+import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
+import { ThemedView } from "@/components/ThemedView";
 import {
     initDatabase,
     getActiveWorkout,
@@ -25,32 +26,35 @@ import {
     Exercise,
     WorkoutSet,
     Workout,
-} from '@/lib/database';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+    ExerciseType,
+    getExerciseTypes,
+    getExerciseTypeById,
+    updateSet,
+    deleteWorkout,
+} from "@/lib/database";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-// Import our custom components
+import CustomHeader from "@/components/workout/CustomHeader";
+import { ThemedText } from "@/components/ThemedText";
+import useElapsedTime from "@/hooks/useElapsedTime";
+import { Ionicons } from "@expo/vector-icons";
+import { IconSymbol } from "@/components/ui/IconSymbol";
+import ExerciseItem from "@/components/workout/ExerciseItem";
+import { ExerciseInstructionsModal } from "@/components/workout/ExerciseInstructionsModal";
 
-import ExerciseTypeSelector, { EXERCISE_TYPES } from '@/components/workout/ExerciseTypeSelector';
-import ExerciseItem from '@/components/workout/ExerciseItem';
-import CustomHeader from '@/components/workout/CustomHeader';
-import { ThemedText } from '@/components/ThemedText';
-import useElapsedTime from '@/hooks/useElapsedTime';
-
-type ExerciseWithSets = Exercise & {
+export type ExerciseWithSetsAndTypeName = Exercise & {
     sets: WorkoutSet[];
+    type_name: string;
 };
 
 export default function ActiveWorkoutScreen() {
     const { workoutId } = useLocalSearchParams();
     const [workout, setWorkout] = useState<Workout | null>(null);
-    const [exercises, setExercises] = useState<ExerciseWithSets[]>([]);
+    const [exercises, setExercises] = useState<ExerciseWithSetsAndTypeName[]>([]);
     const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const [helpInstructionsVisible, setHelpInstructionsVisible] = useState(false);
+    const [helpModalExercise, setHelpModalExercise] = useState<ExerciseType | null>(null);
     const elapsedTime = useElapsedTime(workout?.start_time ?? 0);
-    // For adding new exercises
-    const [selectedExerciseType, setSelectedExerciseType] = useState(EXERCISE_TYPES[0]);
-
-    const insets = useSafeAreaInsets();
 
     // Initialize the database and load workout data
     useEffect(() => {
@@ -59,7 +63,7 @@ export default function ActiveWorkoutScreen() {
                 await initDatabase();
                 await loadWorkoutData();
             } catch (error) {
-                console.error('Error setting up database:', error);
+                console.error("Error setting up database:", error);
             } finally {
                 setLoading(false);
             }
@@ -78,7 +82,7 @@ export default function ActiveWorkoutScreen() {
 
     const loadWorkoutData = async () => {
         if (!workoutId) {
-            console.error('No workout ID provided');
+            console.error("No workout ID provided");
             return;
         }
 
@@ -86,7 +90,7 @@ export default function ActiveWorkoutScreen() {
             // Get workout details
             const activeWorkout = await getActiveWorkout();
             if (!activeWorkout || activeWorkout.id !== Number(workoutId)) {
-                Alert.alert('Error', 'Workout not found or not active');
+                Alert.alert("Error", "Workout not found or not active");
                 router.back();
                 return;
             }
@@ -95,55 +99,55 @@ export default function ActiveWorkoutScreen() {
             // Get exercises for this workout
             const workoutExercises = await getExercisesByWorkout(Number(workoutId));
 
-            // For each exercise, get its sets
-            const exercisesWithSets: ExerciseWithSets[] = await Promise.all(
+            // For each exercise, get its sets and type name
+            const exercisesWithSets: ExerciseWithSetsAndTypeName[] = await Promise.all(
                 workoutExercises.map(async (exercise) => {
                     const sets = await getSetsByExercise(exercise.id);
-                    return { ...exercise, sets };
+                    const exerciseType = await getExerciseTypeById(exercise.type);
+                    return { ...exercise, sets, type_name: exerciseType?.name || "Unknown" };
                 }),
             );
 
             setExercises(exercisesWithSets);
         } catch (error) {
-            console.error('Error loading workout data:', error);
-        }
-    };
-
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        try {
-            await loadWorkoutData();
-        } catch (error) {
-            console.error('Error refreshing workout data:', error);
-        } finally {
-            setRefreshing(false);
+            console.error("Error loading workout data:", error);
         }
     };
 
     const handleAddExercise = async () => {
         if (!workoutId) return;
 
-        try {
-            await addExercise(Number(workoutId), selectedExerciseType);
-            // Reload data
-            await loadWorkoutData();
-        } catch (error) {
-            console.error('Error adding exercise:', error);
-        }
+        // try {
+        //     await addExercise(Number(workoutId), selectedExerciseType);
+        //     // Reload data
+        //     await loadWorkoutData();
+        // } catch (error) {
+        //     console.error('Error adding exercise:', error);
+        // }
+
+        router.push({
+            pathname: "/active/add-exercise",
+            params: { workoutId },
+        });
     };
 
     const handleAddSet = async (exerciseId: number, weight: string, reps: string) => {
-        if (!weight || !reps) {
-            Alert.alert('Error', 'Please enter weight and reps');
-            return;
-        }
-
         try {
             await addSet(exerciseId, parseFloat(weight), parseInt(reps, 10), false);
             // Reload data
             await loadWorkoutData();
         } catch (error) {
-            console.error('Error adding set:', error);
+            console.error("Error adding set:", error);
+        }
+    };
+
+    const handleUpdateSet = async (setId: number, weight: string, reps: string) => {
+        try {
+            await updateSet(setId, parseFloat(weight), parseInt(reps, 10));
+            // Reload data
+            await loadWorkoutData();
+        } catch (error) {
+            console.error("Error updating set:", error);
         }
     };
 
@@ -153,31 +157,31 @@ export default function ActiveWorkoutScreen() {
             // Reload data
             await loadWorkoutData();
         } catch (error) {
-            console.error('Error updating set completion:', error);
+            console.error("Error updating set completion:", error);
         }
     };
 
     const handleDeleteExercise = async (exerciseId: number) => {
         Alert.alert(
-            'Delete Exercise',
-            'Are you sure you want to delete this exercise and all its sets?',
+            "Delete Exercise",
+            "Are you sure you want to delete this exercise and all its sets?",
             [
                 {
-                    text: 'Cancel',
-                    style: 'cancel',
+                    text: "Cancel",
+                    style: "cancel",
                 },
                 {
-                    text: 'Delete',
+                    text: "Delete",
                     onPress: async () => {
                         try {
                             await deleteExercise(exerciseId);
                             // Reload data
                             await loadWorkoutData();
                         } catch (error) {
-                            console.error('Error deleting exercise:', error);
+                            console.error("Error deleting exercise:", error);
                         }
                     },
-                    style: 'destructive',
+                    style: "destructive",
                 },
             ],
         );
@@ -189,29 +193,59 @@ export default function ActiveWorkoutScreen() {
             // Reload data
             await loadWorkoutData();
         } catch (error) {
-            console.error('Error deleting set:', error);
+            console.error("Error deleting set:", error);
         }
     };
 
     const handleFinishWorkout = async () => {
         if (!workoutId) return;
 
-        Alert.alert('Finish Workout', 'Are you sure you want to finish this workout?', [
+        // If no sets, ask if they want to cancel the workout
+        if (exercises.every((exercise) => exercise.sets.length === 0)) {
+            Alert.alert(
+                "No Sets",
+                "You have not added any sets. Do you want to cancel the workout?",
+                [
+                    {
+                        text: "Cancel",
+                        style: "cancel",
+                    },
+                    {
+                        text: "Finish",
+                        onPress: async () => {
+                            try {
+                                await deleteWorkout(Number(workoutId));
+                                router.push({
+                                    pathname: "/(tabs)",
+                                    params: { workoutId },
+                                });
+                            } catch (error) {
+                                console.error("Error finishing workout:", error);
+                            }
+                        },
+                    },
+                ],
+            );
+            return;
+        }
+        Alert.alert("Finish Workout", "Are you sure you want to finish this workout?", [
             {
-                text: 'Cancel',
-                style: 'cancel',
+                text: "Cancel",
+                style: "cancel",
             },
             {
-                text: 'Finish',
+                text: "Finish",
                 onPress: async () => {
                     try {
                         // End the workout in the database
-                        await endWorkout(Number(workoutId));
+                        await endWorkout(Number(workoutId), false);
 
-                        // Use back() instead of replace to avoid navigation issues
-                        router.back();
+                        router.push({
+                            pathname: "/active/finish-workout",
+                            params: { workoutId },
+                        });
                     } catch (error) {
-                        console.error('Error finishing workout:', error);
+                        console.error("Error finishing workout:", error);
                     }
                 },
             },
@@ -221,7 +255,7 @@ export default function ActiveWorkoutScreen() {
     if (loading) {
         return (
             <>
-                <CustomHeader title="Current Workout" onEndWorkout={() => {}} />
+                <CustomHeader title="Current Workout" onRightButton={() => {}} />
                 <ThemedView style={[styles.container, styles.centered]}>
                     <ActivityIndicator size="large" />
                 </ThemedView>
@@ -232,46 +266,86 @@ export default function ActiveWorkoutScreen() {
     return (
         <KeyboardAvoidingView
             style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             keyboardVerticalOffset={100}
         >
             <CustomHeader
-                title={workout?.name || 'Current Workout'}
-                onEndWorkout={handleFinishWorkout}
+                title={workout?.name || "Current Workout"}
+                rightButtonText="Finish"
+                onRightButton={handleFinishWorkout}
             />
 
             <ThemedView style={styles.workoutInfo}>
                 <ThemedText>{elapsedTime}</ThemedText>
             </ThemedView>
 
-            <ExerciseTypeSelector
-                selectedExerciseType={selectedExerciseType}
-                setSelectedExerciseType={setSelectedExerciseType}
-                onAddExercise={handleAddExercise}
+            <ExerciseInstructionsModal
+                visible={helpInstructionsVisible}
+                onClose={() => setHelpInstructionsVisible(false)}
+                instructions={helpModalExercise?.instructions || []}
+                exerciseName={helpModalExercise?.name || ""}
             />
 
             <FlatList
                 data={exercises}
-                renderItem={({ item }) => (
-                    <ExerciseItem
-                        exercise={item}
-                        onDeleteExercise={handleDeleteExercise}
-                        onAddSet={handleAddSet}
-                        onSetCompletion={handleSetCompletion}
-                        onDeleteSet={handleDeleteSet}
-                    />
-                )}
+                renderItem={({ item, index }) =>
+                    index != exercises.length - 1 ? (
+                        <ExerciseItem
+                            exercise={item}
+                            onDeleteExercise={handleDeleteExercise}
+                            onAddSet={handleAddSet}
+                            onSetCompletion={handleSetCompletion}
+                            onDeleteSet={handleDeleteSet}
+                            onHelp={async () => {
+                                setHelpInstructionsVisible(true);
+                                setHelpModalExercise(await getExerciseTypeById(item.type));
+                            }}
+                        />
+                    ) : (
+                        <>
+                            <ExerciseItem
+                                exercise={item}
+                                onDeleteExercise={handleDeleteExercise}
+                                onAddSet={handleAddSet}
+                                onSetCompletion={handleSetCompletion}
+                                onDeleteSet={handleDeleteSet}
+                                onHelp={async () => {
+                                    setHelpInstructionsVisible(true);
+                                    setHelpModalExercise(await getExerciseTypeById(item.type));
+                                }}
+                            />
+
+                            <Button
+                                title="Add Exercise"
+                                onPress={handleAddExercise}
+                                icon={<IconSymbol name="plus" size={16} color="white" />}
+                                iconPosition="left"
+                                containerStyle={{ margin: 16 }}
+                            />
+                        </>
+                    )
+                }
                 keyExtractor={(item) => item.id.toString()}
                 contentContainerStyle={styles.listContent}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-                }
+                // refreshControl={
+                //     <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+                // }
+
                 ListEmptyComponent={
-                    <ThemedView style={styles.emptyContainer}>
-                        <ThemedText>
-                            No exercises added yet. Add your first exercise above!
-                        </ThemedText>
-                    </ThemedView>
+                    <>
+                        <ThemedView style={styles.emptyContainer}>
+                            <ThemedText>
+                                No exercises added yet. Add your first exercise below!
+                            </ThemedText>
+                        </ThemedView>
+                        <Button
+                            title="Add Exercise"
+                            onPress={handleAddExercise}
+                            icon={<IconSymbol name="plus" size={16} color="white" />}
+                            iconPosition="left"
+                            containerStyle={{ margin: 16 }}
+                        />
+                    </>
                 }
             />
         </KeyboardAvoidingView>
@@ -283,19 +357,19 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     centered: {
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     listContent: {
         padding: 16,
     },
     emptyContainer: {
         padding: 16,
-        alignItems: 'center',
+        alignItems: "center",
     },
     workoutInfo: {
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
+        borderBottomColor: "#ccc",
     },
 });
