@@ -12,7 +12,7 @@ import { GenerateButton } from '@/components/ui/GenerateButton';
 import { InfoContainer } from "@/components/ui/InfoContainer";
 import { StartButton } from '@/components/ui/StartButton';
 
-export default function HomeScreen() {
+export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();
 
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
@@ -22,17 +22,27 @@ export default function HomeScreen() {
             backgroundColor: backgroundColor,
             paddingTop: insets.top + 90,
         }}>
-            <Title type='h1'>Start a Workout</Title>
+            <Title type='h1'>Edit Workouts</Title>
 
             <VerticalSpacer gap={20}/>
 
-            <Title type='h2' lightColor='#888888'>Get Started</Title>
+            <Title type='h2' lightColor='#888888'>New Workout</Title>
 
             <VerticalSpacer gap={20}/>
 
-            <View style={[ styles.container ]}>
-                <StartButton/>
-                <GenerateButton/>
+            <View style={[
+                styles.container,
+                {
+                    flexDirection: 'row',
+                }
+            ]}>
+                <StartButton
+                    titleText="From Scratch"
+                    icon="plus"
+                />
+                <GenerateButton
+                    titleText="From Preset"
+                />
             </View>
 
             <VerticalSpacer gap={20}/>
@@ -60,8 +70,6 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
-
         gap: 10,
 
         marginLeft: 10,
