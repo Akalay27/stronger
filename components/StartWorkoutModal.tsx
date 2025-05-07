@@ -1,14 +1,7 @@
 import React, { useState } from "react";
-import {
-    Modal,
-    View,
-    Text,
-    TextInput,
-    StyleSheet,
-    TouchableOpacity,
-    TouchableWithoutFeedback,
-    Keyboard,
-} from "react-native";
+import { TextInput, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { Modal } from "./Modal";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface Props {
     visible: boolean;
@@ -18,6 +11,12 @@ interface Props {
 
 export const StartExerciseModal: React.FC<Props> = ({ visible, onClose, onStart }) => {
     const [exerciseName, setExerciseName] = useState("");
+    const backgroundColor = useThemeColor(
+        { light: "#F2F2F7", dark: "#2C2C2E" },
+        "secondaryBackground",
+    );
+    const textColor = useThemeColor({ light: "#000", dark: "#fff" }, "text");
+    const accentColor = useThemeColor({ light: "#007AFF", dark: "#0A84FF" }, "tint");
 
     const handleStart = () => {
         if (exerciseName.trim()) {
@@ -27,49 +26,33 @@ export const StartExerciseModal: React.FC<Props> = ({ visible, onClose, onStart 
     };
 
     return (
-        <Modal visible={visible} animationType="fade" transparent>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={styles.overlay}>
-                    <View style={styles.modal}>
-                        <Text style={styles.title}>Enter Exercise Name</Text>
-                        <TextInput
-                            style={styles.input}
-                            value={exerciseName}
-                            onChangeText={setExerciseName}
-                            placeholder="e.g. Bench Press"
-                        />
-                        <TouchableOpacity onPress={handleStart} style={styles.startButton}>
-                            <Text style={styles.startText}>Start</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                            <Text style={styles.closeText}>Cancel</Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-            </TouchableWithoutFeedback>
+        <Modal
+            visible={visible}
+            onClose={onClose}
+            title="Enter Workout Name"
+            showCloseButton={false}
+        >
+            <TextInput
+                style={[styles.input, { backgroundColor, color: textColor }]}
+                value={exerciseName}
+                onChangeText={setExerciseName}
+                placeholder="e.g. Bench Press"
+                placeholderTextColor="#999"
+            />
+            <TouchableOpacity
+                onPress={handleStart}
+                style={[styles.startButton, { backgroundColor: accentColor }]}
+            >
+                <Text style={styles.startText}>Start</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <Text style={[styles.closeText, { color: accentColor }]}>Cancel</Text>
+            </TouchableOpacity>
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.2)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    modal: {
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 12,
-        width: "90%",
-        alignItems: "center",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 12,
-    },
     input: {
         width: "100%",
         borderWidth: 1,
@@ -79,11 +62,12 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     startButton: {
-        backgroundColor: "#007AFF",
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 6,
         marginBottom: 10,
+        width: "100%",
+        alignItems: "center",
     },
     startText: {
         color: "#fff",
@@ -94,7 +78,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     closeText: {
-        color: "#007AFF",
         fontWeight: "500",
     },
 });

@@ -31,6 +31,8 @@ import {
     getExerciseTypeById,
     updateSet,
     deleteWorkout,
+    getWorkout,
+    syncWorkoutById,
 } from "@/lib/database";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -88,13 +90,12 @@ export default function ActiveWorkoutScreen() {
 
         try {
             // Get workout details
-            const activeWorkout = await getActiveWorkout();
-            if (!activeWorkout || activeWorkout.id !== Number(workoutId)) {
-                Alert.alert("Error", "Workout not found or not active");
-                router.back();
+            const workout = await getWorkout(Number(workoutId));
+            if (!workout) {
+                console.error("Workout not found");
                 return;
             }
-            setWorkout(activeWorkout);
+            setWorkout(workout);
 
             // Get exercises for this workout
             const workoutExercises = await getExercisesByWorkout(Number(workoutId));
@@ -198,6 +199,10 @@ export default function ActiveWorkoutScreen() {
     };
 
     const handleFinishWorkout = async () => {
+        if (workout?.is_template) {
+            handleSaveWorkout();
+            return;
+        }
         if (!workoutId) return;
 
         // If no sets, ask if they want to cancel the workout
@@ -252,6 +257,19 @@ export default function ActiveWorkoutScreen() {
         ]);
     };
 
+    const handleSaveWorkout = async () => {
+        if (!workoutId) return;
+        try {
+            syncWorkoutById(Number(workoutId));
+            router.push({
+                pathname: "/(tabs)",
+                params: { workoutId },
+            });
+        } catch (error) {
+            console.error("Error saving workout:", error);
+        }
+    };
+
     if (loading) {
         return (
             <>
@@ -271,13 +289,15 @@ export default function ActiveWorkoutScreen() {
         >
             <CustomHeader
                 title={workout?.name || "Current Workout"}
-                rightButtonText="Finish"
+                rightButtonText={workout?.is_template ? "Save" : "Finish"}
                 onRightButton={handleFinishWorkout}
             />
 
-            <ThemedView style={styles.workoutInfo}>
-                <ThemedText>{elapsedTime}</ThemedText>
-            </ThemedView>
+            {!workout?.is_template && (
+                <ThemedView style={styles.workoutInfo}>
+                    <ThemedText>{elapsedTime}</ThemedText>
+                </ThemedView>
+            )}
 
             <ExerciseInstructionsModal
                 visible={helpInstructionsVisible}
@@ -296,6 +316,7 @@ export default function ActiveWorkoutScreen() {
                             onAddSet={handleAddSet}
                             onSetCompletion={handleSetCompletion}
                             onDeleteSet={handleDeleteSet}
+                            isTemplate={workout?.is_template || false}
                             onHelp={async () => {
                                 setHelpInstructionsVisible(true);
                                 setHelpModalExercise(await getExerciseTypeById(item.type));
@@ -309,6 +330,7 @@ export default function ActiveWorkoutScreen() {
                                 onAddSet={handleAddSet}
                                 onSetCompletion={handleSetCompletion}
                                 onDeleteSet={handleDeleteSet}
+                                isTemplate={workout?.is_template || false}
                                 onHelp={async () => {
                                     setHelpInstructionsVisible(true);
                                     setHelpModalExercise(await getExerciseTypeById(item.type));

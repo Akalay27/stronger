@@ -17,6 +17,7 @@ interface ExerciseItemProps {
     onSetCompletion: (setId: number, completed: boolean) => void;
     onDeleteSet: (setId: number) => void;
     onHelp: () => void;
+    isTemplate?: boolean;
 }
 
 export const ExerciseItem: React.FC<ExerciseItemProps> = ({
@@ -26,6 +27,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
     onSetCompletion,
     onDeleteSet,
     onHelp,
+    isTemplate = false,
 }) => {
     const [addingSet, setAddingSet] = useState(false);
 
@@ -57,7 +59,12 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                     data={exercise.sets}
                     keyExtractor={(set) => set.id.toString()}
                     renderItem={({ item: set }) => (
-                        <SetItem set={set} onComplete={onSetCompletion} onDelete={onDeleteSet} />
+                        <SetItem 
+                            set={set} 
+                            onComplete={onSetCompletion} 
+                            onDelete={onDeleteSet}
+                            isTemplate={isTemplate} 
+                        />
                     )}
                     scrollEnabled={false}
                 />

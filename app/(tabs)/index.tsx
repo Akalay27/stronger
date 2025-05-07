@@ -9,7 +9,17 @@ import { PrimaryContainer } from "@/components/PrimaryContainer";
 import { Title } from "@/components/Title";
 import { ThemedText } from "@/components/ThemedText";
 import { Button } from "@rneui/themed";
-import { initDatabase, getActiveWorkout, createWorkout, Workout } from "@/lib/database";
+import {
+    initDatabase,
+    getActiveWorkout,
+    createWorkout,
+    Workout,
+    getAllTemplates,
+    WorkoutWithExerciseList,
+    deleteWorkout,
+    updateWorkoutName,
+    createFromTemplate,
+} from "@/lib/database";
 import { ThemedView } from "@/components/ThemedView";
 import { VerticalSpacer } from "@/components/VerticalSpacer";
 import { GenerateButton } from "@/components/ui/GenerateButton";
@@ -20,21 +30,25 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { StartExerciseModal } from "@/components/StartWorkoutModal";
 import { ContainerTitle } from "@/components/ContainerTitle";
 import { ContainerDescription } from "@/components/ContainerDescription";
+import { TemplateManagementModal } from "@/components/TemplateManagementModal";
 
 export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();
-    const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
-    const [showNameInput, setShowNameInput] = useState(false);
     const [showStartModal, setShowStartModal] = useState(false);
+    const [showTemplateModal, setShowTemplateModal] = useState(false);
+    const [selectedTemplate, setSelectedTemplate] = useState<WorkoutWithExerciseList | null>(null);
     const backgroundColor = useThemeColor({ light: "", dark: "" }, "background");
+
+    const [templates, setTemplates] = useState<WorkoutWithExerciseList[]>([]);
     // Initialize database and check for active workout
     useEffect(() => {
         const setup = async () => {
             try {
                 await initDatabase();
                 await checkActiveWorkout();
+                await getTemplates();
             } catch (error) {
                 console.error("Error setting up database:", error);
             } finally {
@@ -50,9 +64,19 @@ export default function WorkoutsScreen() {
             // Only check if we're not already loading
             if (!loading) {
                 checkActiveWorkout();
+                getTemplates();
             }
         }, [loading]),
     );
+
+    const getTemplates = async () => {
+        try {
+            const templates = await getAllTemplates();
+            setTemplates(templates);
+        } catch (error) {
+            console.error("Error fetching workout templates:", error);
+        }
+    };
 
     const checkActiveWorkout = async () => {
         try {
@@ -96,6 +120,54 @@ export default function WorkoutsScreen() {
         }
     };
 
+    const handleOpenTemplateModal = (template: WorkoutWithExerciseList) => {
+        setSelectedTemplate(template);
+        setShowTemplateModal(true);
+    };
+
+    const handleStartTemplate = async (template: WorkoutWithExerciseList) => {
+        try {
+            // Make sure there is not an active workout
+            if (activeWorkout) {
+                Alert.alert(
+                    "Error",
+                    "Please finish or resume your current workout before starting a template.",
+                );
+                return;
+            }
+            // Create a new workout based on the template
+            const workoutId = await createFromTemplate(template.id);
+            // Navigate to active workout screen with the new workout ID
+            router.push({
+                pathname: "/active",
+                params: { workoutId },
+            });
+        } catch (error) {
+            console.error("Error starting workout from template:", error);
+            Alert.alert("Error", "Failed to start workout from template. Please try again.");
+        }
+    };
+
+    const handleUpdateTemplateName = async (id: number, newName: string) => {
+        try {
+            await updateWorkoutName(id, newName);
+            await getTemplates(); // Refresh templates
+        } catch (error) {
+            console.error("Error updating template:", error);
+            Alert.alert("Error", "Failed to update template. Please try again.");
+        }
+    };
+
+    const handleDeleteTemplate = async (id: number) => {
+        try {
+            await deleteWorkout(id);
+            await getTemplates(); // Refresh templates
+        } catch (error) {
+            console.error("Error deleting template:", error);
+            Alert.alert("Error", "Failed to delete template. Please try again.");
+        }
+    };
+
     if (loading) {
         return (
             <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -115,6 +187,13 @@ export default function WorkoutsScreen() {
                 onStart={handleStartWorkout}
                 visible={showStartModal}
                 onClose={() => setShowStartModal(false)}
+            />
+            <TemplateManagementModal
+                visible={showTemplateModal}
+                onClose={() => setShowTemplateModal(false)}
+                template={selectedTemplate}
+                onSave={handleUpdateTemplateName}
+                onDelete={handleDeleteTemplate}
             />
             <Title type="h1">Start a Workout</Title>
 
@@ -149,18 +228,21 @@ export default function WorkoutsScreen() {
 
             <VerticalSpacer gap={20} />
 
-            <View style={styles.container}>
-                <InfoContainer
-                    descriptionText="Leg Extension, Squat (Barbell), Calf Raise on Leg Press"
-                    timerText="2 days ago"
-                    titleText="Legs and Core"
-                />
-
-                <InfoContainer
-                    descriptionText="Lat Pulldowns, Drag Curls, Cable Rows, Bayesian Curls, Dumbbell Curls"
-                    timerText="5 days ago"
-                    titleText="Back and Bis"
-                />
+            <View style={styles.templatesContainer}>
+                {Array.from({ length: Math.ceil(templates.length / 2) }).map((_, rowIndex) => (
+                    <View key={rowIndex} style={styles.templateRow}>
+                        {templates.slice(rowIndex * 2, rowIndex * 2 + 2).map((template) => (
+                            <InfoContainer
+                                key={template.id}
+                                descriptionText={template.exerciseList.join(", ")}
+                                titleText={template.name}
+                                onPress={() => handleStartTemplate(template)}
+                                moreInfoOnPress={() => handleOpenTemplateModal(template)}
+                                style={{ flex: 1 }}
+                            />
+                        ))}
+                    </View>
+                ))}
             </View>
         </Animated.ScrollView>
     );
@@ -174,5 +256,15 @@ const styles = StyleSheet.create({
 
         marginLeft: 10,
         marginRight: 10,
+    },
+
+    templatesContainer: {
+        paddingHorizontal: 10,
+    },
+    templateRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+        gap: 10,
     },
 });

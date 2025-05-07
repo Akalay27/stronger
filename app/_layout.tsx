@@ -66,34 +66,36 @@ export default function RootLayout() {
     if (!loaded) return null;
 
     return (
-        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-            <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="+not-found" />
-                <Stack.Screen name="login/index" options={{ headerShown: false }} />
-                <Stack.Screen
-                    name="active/index"
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="active/add-exercise"
-                    options={{
-                        headerShown: false,
-                    }}
-                />
-                <Stack.Screen
-                    name="active/finish-workout"
-                    options={{
-                        headerShown: false,
-                        headerTitle: "Finish Options",
-                        headerBackVisible: false,
-                    }}
-                />
-            </Stack>
+        <GestureHandlerRootView>
+            <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+                <Stack>
+                    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                    <Stack.Screen name="+not-found" />
+                    <Stack.Screen name="login/index" options={{ headerShown: false }} />
+                    <Stack.Screen
+                        name="active/index"
+                        options={{
+                            headerShown: false,
+                        }}
+                    />
+                    <Stack.Screen
+                        name="active/add-exercise"
+                        options={{
+                            headerShown: false,
+                        }}
+                    />
+                    <Stack.Screen
+                        name="active/finish-workout"
+                        options={{
+                            headerShown: false,
+                            headerTitle: "Finish Options",
+                            headerBackVisible: false,
+                        }}
+                    />
+                </Stack>
 
-            <StatusBar style="auto" />
-        </ThemeProvider>
+                <StatusBar style="auto" />
+            </ThemeProvider>
+        </GestureHandlerRootView>
     );
 }

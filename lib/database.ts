@@ -32,6 +32,7 @@ export interface Workout {
     active: boolean;
     synced?: boolean;
     supabase_id?: string;
+    is_template: boolean;
 }
 
 export interface ExerciseType {
@@ -243,12 +244,7 @@ export const createFromTemplate = async (templateId: number): Promise<number> =>
 
         for (const templateSet of templateSets) {
             // Add each set to the new exercise
-            await addSet(
-                newExerciseId,
-                templateSet.weight,
-                templateSet.reps,
-                templateSet.completed,
-            );
+            await addSet(newExerciseId, templateSet.weight, templateSet.reps, false);
         }
     }
 
@@ -266,6 +262,13 @@ export const getActiveWorkout = async (): Promise<Workout | null> => {
     return { ...workout, active: !!workout.active, synced: !!workout.synced };
 };
 
+export const getWorkout = async (id: number): Promise<Workout | null> => {
+    const [workout] = await db.getAllAsync<Workout>(`SELECT * FROM workouts WHERE id = ?`, [id]);
+    if (!workout) return null;
+
+    return { ...workout, active: !!workout.active, synced: !!workout.synced };
+};
+
 // Get all workouts
 export const getAllWorkouts = async (): Promise<Workout[]> => {
     const rows = await db.getAllAsync<Workout>(`SELECT * FROM workouts ORDER BY start_time DESC`);
@@ -276,14 +279,49 @@ export const getAllWorkouts = async (): Promise<Workout[]> => {
     }));
 };
 
-export const getAllTemplates = async (): Promise<Workout[]> => {
-    const rows = await db.getAllAsync<Workout>(
+export type WorkoutWithExerciseList = Workout & {
+    exerciseList: string[];
+};
+
+export const getAllTemplates = async (): Promise<WorkoutWithExerciseList[]> => {
+    // First, get all template workouts
+    const workouts = await db.getAllAsync<Workout>(
         `SELECT * FROM workouts WHERE is_template = 1 ORDER BY start_time DESC`,
     );
-    return rows.map((row) => ({
-        ...row,
-        active: !!row.active,
-        synced: !!row.synced,
+
+    const workoutIds = workouts.map((w) => w.id);
+    if (workoutIds.length === 0) return [];
+
+    // Now, get all exercises + type names for these workouts
+    const rows = await db.getAllAsync<{
+        workout_id: number;
+        exercise_name: string;
+    }>(
+        `
+        SELECT e.workout_id, et.name AS exercise_name
+        FROM exercises e
+        JOIN exercise_types et ON e.type = et.id
+        WHERE e.workout_id IN (${workoutIds.map(() => "?").join(",")})
+        ORDER BY e.workout_id, e.id
+    `,
+        workoutIds,
+    );
+
+    // Group exercise names by workout ID
+    const workoutMap = new Map<number, string[]>();
+    for (const row of rows) {
+        if (!workoutMap.has(row.workout_id)) {
+            workoutMap.set(row.workout_id, []);
+        }
+        workoutMap.get(row.workout_id)!.push(row.exercise_name);
+    }
+
+    // Merge workout metadata with exercise names
+    return workouts.map((w) => ({
+        ...w,
+        active: !!w.active,
+        synced: !!w.synced,
+        exerciseList: workoutMap.get(w.id) ?? [],
     }));
 };
 
@@ -362,12 +400,51 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
     }
 };
 
+// Duplicate a workout as a template
+export const duplicateWorkoutAsTemplate = async (sourceWorkoutId: number): Promise<number> => {
+    // Get source workout details
+    const [sourceWorkout] = await db.getAllAsync<Workout>(`SELECT * FROM workouts WHERE id = ?`, [
+        sourceWorkoutId,
+    ]);
+
+    if (!sourceWorkout) {
+        throw new Error("Source workout not found");
+    }
+
+    // Create a new template workout with the same name
+    const result = await db.runAsync(
+        `INSERT INTO workouts (name, start_time, active, synced, is_template)
+         VALUES (?, ?, 0, 0, 1)`,
+        [sourceWorkout.name, Date.now()],
+    );
+
+    const newTemplateId = result.lastInsertRowId;
+
+    // Copy all exercises from source workout
+    const exercises = await getExercisesByWorkout(sourceWorkoutId);
+    for (const exercise of exercises) {
+        // Add each exercise to the template
+        const newExerciseId = await addExercise(newTemplateId, exercise.type);
+
+        // Copy all sets from source exercise
+        const sets = await getSetsByExercise(exercise.id);
+        for (const set of sets) {
+            await addSet(newExerciseId, set.weight, set.reps, set.completed);
+        }
+    }
+
+    return newTemplateId;
+};
+
 // End a workout (mark as inactive)
 export const endWorkout = async (id: number, is_template: boolean): Promise<void> => {
-    await db.runAsync(`UPDATE workouts SET active = 0, is_template = ? WHERE id = ?`, [
-        is_template ? 1 : 0,
-        id,
-    ]);
+    // Mark the workout as inactive
+    await db.runAsync(`UPDATE workouts SET active = 0 WHERE id = ?`, [id]);
+
+    // If saving as template, create a duplicate of this workout as a template
+    if (is_template) {
+        await duplicateWorkoutAsTemplate(id);
+    }
 
     // Try immediate sync
     if (await isOnline()) {
@@ -398,6 +475,29 @@ export const deleteWorkout = async (id: number): Promise<void> => {
         }
     }
     await db.runAsync(`DELETE FROM workouts WHERE id = ?`, [id]);
+};
+
+export const updateWorkoutName = async (id: number, name: string): Promise<void> => {
+    await db.runAsync(`UPDATE workouts SET name = ? WHERE id = ?`, [name, id]);
+
+    // Try to sync if online
+    if (await isOnline()) {
+        const [workout] = await db.getAllAsync<Workout>(`SELECT * FROM workouts WHERE id = ?`, [
+            id,
+        ]);
+
+        if (workout?.supabase_id) {
+            try {
+                const { error } = await supabase
+                    .from("workouts")
+                    .update({ name })
+                    .eq("id", workout.supabase_id);
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error updating workout in Supabase:", err);
+            }
+        }
+    }
 };
 
 export const syncUnsyncedWorkouts = async (): Promise<void> => {

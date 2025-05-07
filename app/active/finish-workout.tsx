@@ -35,7 +35,7 @@ export default function FinishWorkout() {
 
     return (
         <KeyboardAvoidingView style={styles.container}>
-            {showConfetti && <ConfettiCannon count={200} origin={{ x: -10, y: 0 }} fadeOut />}
+            {showConfetti && <ConfettiCannon count={200} origin={{ x: 0, y: 0 }} fadeOut />}
 
             <ThemedText type="title">Workout Finished!</ThemedText>
             <ThemedText type="defaultSemiBold">{numberOfWorkouts} workouts completed!</ThemedText>

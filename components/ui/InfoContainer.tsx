@@ -33,13 +33,16 @@ export function InfoContainer({
         <PrimaryContainer
             mainColor={"info"}
             onPress={onPress}
-            style={{
-                flex: 1,
-                flexDirection: "row",
-                justifyContent: "space-between",
-                padding: 10,
-                paddingLeft: 10,
-            }}
+            style={[
+                {
+                    flex: 1,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    padding: 10,
+                    paddingLeft: 10,
+                },
+                style,
+            ]}
         >
             <View
                 style={{
@@ -59,9 +62,10 @@ export function InfoContainer({
                 >
                     {titleText}
                 </ContainerTitle>
-                <MoreInfoButton onPress={moreInfoOnPress} />
+                {moreInfoOnPress && <MoreInfoButton onPress={moreInfoOnPress} />}
             </View>
             <VerticalSpacer gap={10} />
+
             <ContainerDescription>{descriptionText}</ContainerDescription>
             <VerticalSpacer gap={10} />
             {timerText && (

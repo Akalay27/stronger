@@ -10,9 +10,10 @@ interface SetItemProps {
     set: WorkoutSet;
     onComplete: (setId: number, completed: boolean) => void;
     onDelete: (setId: number) => void;
+    isTemplate?: boolean;
 }
 
-export const SetItem: React.FC<SetItemProps> = ({ set, onComplete, onDelete }) => {
+export const SetItem: React.FC<SetItemProps> = ({ set, onComplete, onDelete, isTemplate = false }) => {
     return (
         <Swipeable
             renderRightActions={() => (
@@ -22,16 +23,18 @@ export const SetItem: React.FC<SetItemProps> = ({ set, onComplete, onDelete }) =
             )}
         >
             <ThemedView style={styles.setRow}>
-                <TouchableOpacity
-                    style={styles.checkbox}
-                    onPress={() => onComplete(set.id, set.completed)}
-                >
-                    <Ionicons
-                        name={set.completed ? "checkmark-circle" : "ellipse-outline"}
-                        size={24}
-                        color={set.completed ? "#4CAF50" : "#999"}
-                    />
-                </TouchableOpacity>
+                {!isTemplate && (
+                    <TouchableOpacity
+                        style={styles.checkbox}
+                        onPress={() => onComplete(set.id, set.completed)}
+                    >
+                        <Ionicons
+                            name={set.completed ? "checkmark-circle" : "ellipse-outline"}
+                            size={24}
+                            color={set.completed ? "#4CAF50" : "#999"}
+                        />
+                    </TouchableOpacity>
+                )}
                 <ThemedText style={styles.setText}>
                     {set.weight} lb × {set.reps}
                 </ThemedText>

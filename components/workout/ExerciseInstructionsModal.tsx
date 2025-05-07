@@ -1,14 +1,11 @@
 import React from "react";
 import {
-    Modal,
-    View,
-    Text,
-    StyleSheet,
-    TouchableOpacity,
     ScrollView,
-    TouchableWithoutFeedback,
-    Keyboard,
+    StyleSheet,
+    Text,
 } from "react-native";
+import { Modal } from "../Modal";
+import { useThemeColor } from "@/hooks/useThemeColor";
 
 interface Props {
     visible: boolean;
@@ -23,66 +20,37 @@ export const ExerciseInstructionsModal: React.FC<Props> = ({
     instructions,
     exerciseName,
 }) => {
+    const textColor = useThemeColor({ light: "#000", dark: "#fff" }, "text");
+
     return (
-        <Modal visible={visible} animationType="fade" transparent>
-            <TouchableWithoutFeedback onPress={onClose}>
-                <View style={styles.overlay}>
-                    <TouchableWithoutFeedback>
-                        <View style={styles.modal}>
-                            <Text style={styles.title}>{exerciseName}</Text>
-                            <ScrollView
-                                style={styles.content}
-                                contentContainerStyle={{ flexGrow: 1 }}
-                            >
-                                {instructions.map((step, index) => (
-                                    <Text key={index} style={styles.instruction}>
-                                        • {step}
-                                    </Text>
-                                ))}
-                            </ScrollView>
-                            <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-                                <Text style={styles.closeText}>Close</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </TouchableWithoutFeedback>
-                </View>
-            </TouchableWithoutFeedback>
+        <Modal
+            visible={visible}
+            onClose={onClose}
+            title={exerciseName}
+            closeButtonText="Close"
+        >
+            <ScrollView
+                style={styles.content}
+                contentContainerStyle={{ flexGrow: 1 }}
+            >
+                {instructions.map((step, index) => (
+                    <Text key={index} style={[styles.instruction, { color: textColor }]}>
+                        • {step}
+                    </Text>
+                ))}
+            </ScrollView>
         </Modal>
     );
 };
 
 const styles = StyleSheet.create({
-    overlay: {
-        flex: 1,
-        backgroundColor: "rgba(0, 0, 0, 0.1)",
-        justifyContent: "center",
-        alignItems: "center",
-    },
-    modal: {
-        backgroundColor: "#fff",
-        padding: 20,
-        borderRadius: 12,
-        width: "90%",
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: "600",
-        marginBottom: 12,
-    },
     content: {
+        width: "100%",
         marginBottom: 20,
+        maxHeight: 300,
     },
     instruction: {
         fontSize: 16,
         marginBottom: 8,
-    },
-    closeButton: {
-        alignSelf: "center",
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-        borderRadius: 6,
-    },
-    closeText: {
-        fontWeight: "500",
     },
 });
