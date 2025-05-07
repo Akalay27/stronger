@@ -8,6 +8,7 @@ import {
     KeyboardAvoidingView,
     Alert,
     View,
+    TouchableOpacity,
 } from "react-native";
 import { Button } from "@rneui/themed";
 import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
@@ -33,8 +34,10 @@ import {
     deleteWorkout,
     getWorkout,
     syncWorkoutById,
+    reorderExercises,
 } from "@/lib/database";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+// No longer need animation libraries for button-based reordering
 
 import CustomHeader from "@/components/workout/CustomHeader";
 import { ThemedText } from "@/components/ThemedText";
@@ -57,6 +60,9 @@ export default function ActiveWorkoutScreen() {
     const [helpInstructionsVisible, setHelpInstructionsVisible] = useState(false);
     const [helpModalExercise, setHelpModalExercise] = useState<ExerciseType | null>(null);
     const elapsedTime = useElapsedTime(workout?.start_time ?? 0);
+
+    // State for reordering exercises
+    const [reorderMode, setReorderMode] = useState(false);
 
     // Initialize the database and load workout data
     useEffect(() => {
@@ -270,6 +276,68 @@ export default function ActiveWorkoutScreen() {
         }
     };
 
+    // Toggle reorder mode
+    const toggleReorderMode = () => {
+        const newMode = !reorderMode;
+        setReorderMode(newMode);
+
+        // When exiting reorder mode, save the exercise order
+        if (!newMode) {
+            saveExerciseOrder();
+        }
+    };
+
+    // Move an exercise up in order
+    const handleMoveUp = (exerciseId: number) => {
+        const index = exercises.findIndex((ex) => ex.id === exerciseId);
+        if (index <= 0) return; // Already at the top
+
+        const newExercises = [...exercises];
+        // Swap with the exercise above
+        [newExercises[index], newExercises[index - 1]] = [
+            newExercises[index - 1],
+            newExercises[index],
+        ];
+        setExercises(newExercises);
+    };
+
+    // Move an exercise down in order
+    const handleMoveDown = (exerciseId: number) => {
+        const index = exercises.findIndex((ex) => ex.id === exerciseId);
+        if (index === -1 || index === exercises.length - 1) return; // Already at the bottom
+
+        const newExercises = [...exercises];
+        // Swap with the exercise below
+        [newExercises[index], newExercises[index + 1]] = [
+            newExercises[index + 1],
+            newExercises[index],
+        ];
+        setExercises(newExercises);
+    };
+
+    // Save the exercise order to the database
+    const saveExerciseOrder = async () => {
+        if (!exercises.length) return;
+
+        try {
+            // Create ordered data to save
+            const orderedData = exercises.map((exercise, index) => ({
+                id: exercise.id,
+                order: index,
+            }));
+
+            // Save to database
+            await reorderExercises(orderedData);
+
+            // Reload data to confirm changes
+            await loadWorkoutData();
+        } catch (error) {
+            console.error("Error saving exercise order:", error);
+        }
+    };
+
+    // We don't need to track positions anymore with the button approach
+
     if (loading) {
         return (
             <>
@@ -291,6 +359,9 @@ export default function ActiveWorkoutScreen() {
                 title={workout?.name || "Current Workout"}
                 rightButtonText={workout?.is_template ? "Save" : "Finish"}
                 onRightButton={handleFinishWorkout}
+                rightButtonDisabled={reorderMode}
+                leftButtonText={reorderMode ? "Done" : "Reorder"}
+                onLeftButton={toggleReorderMode}
             />
 
             {!workout?.is_template && (
@@ -308,8 +379,8 @@ export default function ActiveWorkoutScreen() {
 
             <FlatList
                 data={exercises}
-                renderItem={({ item, index }) =>
-                    index != exercises.length - 1 ? (
+                renderItem={({ item, index }) => (
+                    <>
                         <ExerciseItem
                             exercise={item}
                             onDeleteExercise={handleDeleteExercise}
@@ -321,22 +392,36 @@ export default function ActiveWorkoutScreen() {
                                 setHelpInstructionsVisible(true);
                                 setHelpModalExercise(await getExerciseTypeById(item.type));
                             }}
+                            // Reorder props
+                            isReorderMode={reorderMode}
+                            onMoveUp={handleMoveUp}
+                            onMoveDown={handleMoveDown}
+                            isFirst={index === 0}
+                            isLast={index === exercises.length - 1}
                         />
-                    ) : (
-                        <>
-                            <ExerciseItem
-                                exercise={item}
-                                onDeleteExercise={handleDeleteExercise}
-                                onAddSet={handleAddSet}
-                                onSetCompletion={handleSetCompletion}
-                                onDeleteSet={handleDeleteSet}
-                                isTemplate={workout?.is_template || false}
-                                onHelp={async () => {
-                                    setHelpInstructionsVisible(true);
-                                    setHelpModalExercise(await getExerciseTypeById(item.type));
-                                }}
-                            />
 
+                        {index === exercises.length - 1 && !reorderMode && (
+                            <Button
+                                title="Add Exercise"
+                                onPress={handleAddExercise}
+                                icon={<IconSymbol name="plus" size={16} color="white" />}
+                                iconPosition="left"
+                                containerStyle={{ margin: 16 }}
+                                disabled={reorderMode}
+                            />
+                        )}
+                    </>
+                )}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={styles.listContent}
+                ListEmptyComponent={
+                    !reorderMode ? (
+                        <>
+                            <ThemedView style={styles.emptyContainer}>
+                                <ThemedText>
+                                    No exercises added yet. Add your first exercise below!
+                                </ThemedText>
+                            </ThemedView>
                             <Button
                                 title="Add Exercise"
                                 onPress={handleAddExercise}
@@ -345,29 +430,7 @@ export default function ActiveWorkoutScreen() {
                                 containerStyle={{ margin: 16 }}
                             />
                         </>
-                    )
-                }
-                keyExtractor={(item) => item.id.toString()}
-                contentContainerStyle={styles.listContent}
-                // refreshControl={
-                //     <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-                // }
-
-                ListEmptyComponent={
-                    <>
-                        <ThemedView style={styles.emptyContainer}>
-                            <ThemedText>
-                                No exercises added yet. Add your first exercise below!
-                            </ThemedText>
-                        </ThemedView>
-                        <Button
-                            title="Add Exercise"
-                            onPress={handleAddExercise}
-                            icon={<IconSymbol name="plus" size={16} color="white" />}
-                            iconPosition="left"
-                            containerStyle={{ margin: 16 }}
-                        />
-                    </>
+                    ) : null
                 }
             />
         </KeyboardAvoidingView>

@@ -12,6 +12,9 @@ interface CustomHeaderProps {
     rightButtonText?: string;
     onRightButton: () => void;
     rightButtonDisabled?: boolean;
+    leftButtonText?: string;
+    onLeftButton?: () => void;
+    leftButtonDisabled?: boolean;
 }
 
 export const CustomHeader: React.FC<CustomHeaderProps> = ({
@@ -19,6 +22,9 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
     rightButtonText,
     onRightButton: onEndWorkout,
     rightButtonDisabled,
+    leftButtonText,
+    onLeftButton,
+    leftButtonDisabled,
 }) => {
     const insets = useSafeAreaInsets();
 
@@ -32,9 +38,22 @@ export const CustomHeader: React.FC<CustomHeaderProps> = ({
             ]}
         >
             <View style={styles.sideContainer}>
-                <TouchableOpacity onPress={() => router.back()}>
-                    <IconSymbol name="chevron.left" size={24} color="#1e88e5" />
-                </TouchableOpacity>
+                {leftButtonText && onLeftButton ? (
+                    <TouchableOpacity onPress={onLeftButton}>
+                        <ThemedText
+                            style={
+                                (styles.backText,
+                                leftButtonDisabled ? styles.endTextDisabled : styles.backText)
+                            }
+                        >
+                            {leftButtonText}
+                        </ThemedText>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <IconSymbol name="chevron.left" size={24} color="#1e88e5" />
+                    </TouchableOpacity>
+                )}
             </View>
 
             <View style={styles.titleContainer}>

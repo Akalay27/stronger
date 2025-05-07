@@ -21,6 +21,7 @@ export interface Exercise {
     id: number;
     type: string;
     workout_id: number;
+    order?: number;
     synced?: boolean;
     supabase_id?: string;
 }
@@ -83,6 +84,7 @@ export const initDatabase = async (): Promise<void> => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             type TEXT NOT NULL,
             workout_id INTEGER NOT NULL,
+            \`order\` INTEGER DEFAULT 0,
             synced INTEGER DEFAULT 0,
             supabase_id TEXT,
             FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE
@@ -302,7 +304,7 @@ export const getAllTemplates = async (): Promise<WorkoutWithExerciseList[]> => {
         FROM exercises e
         JOIN exercise_types et ON e.type = et.id
         WHERE e.workout_id IN (${workoutIds.map(() => "?").join(",")})
-        ORDER BY e.workout_id, e.id
+        ORDER BY e.workout_id, e.\`order\` ASC
     `,
         workoutIds,
     );
@@ -315,6 +317,7 @@ export const getAllTemplates = async (): Promise<WorkoutWithExerciseList[]> => {
         }
         workoutMap.get(row.workout_id)!.push(row.exercise_name);
     }
+    // Sort exercise lists by order property
 
     // Merge workout metadata with exercise names
     return workouts.map((w) => ({
@@ -363,6 +366,7 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
                 .insert({
                     type: exercise.type,
                     workout_id: supabaseWorkoutId,
+                    order: exercise.order,
                 })
                 .select("id")
                 .single();
@@ -520,10 +524,20 @@ export const syncUnsyncedWorkouts = async (): Promise<void> => {
 export const addExercise = async (workoutId: number, type: string): Promise<number> => {
     let supabaseId: string | null = null;
     let synced = false;
+
+    // Get the highest current order for this workout
+    const [maxOrder] = await db.getAllAsync<{ maxOrder: number | null }>(
+        `SELECT MAX(\`order\`) as maxOrder FROM exercises WHERE workout_id = ?`,
+        [workoutId],
+    );
+
+    // Set the new exercise's order to be one higher than the current max (or 0 if this is the first exercise)
+    const newOrder = (maxOrder?.maxOrder ?? -1) + 1;
+
     const result = await db.runAsync(
-        `INSERT INTO exercises (type, workout_id, synced, supabase_id)
-     VALUES (?, ?, ?, ?)`,
-        [type, workoutId, synced ? 1 : 0, supabaseId],
+        `INSERT INTO exercises (type, workout_id, \`order\`, synced, supabase_id)
+     VALUES (?, ?, ?, ?, ?)`,
+        [type, workoutId, newOrder, synced ? 1 : 0, supabaseId],
     );
     return result.lastInsertRowId;
 };
@@ -540,10 +554,79 @@ export const addExercises = async (workoutId: number, types: string[]): Promise<
 // Get exercises for a workout
 export const getExercisesByWorkout = async (workoutId: number): Promise<Exercise[]> => {
     const rows = await db.getAllAsync<Exercise>(
-        `SELECT * FROM exercises WHERE workout_id = ? ORDER BY id ASC`,
+        `SELECT * FROM exercises WHERE workout_id = ? ORDER BY \`order\` ASC`,
         [workoutId],
     );
     return rows.map((row) => ({ ...row, synced: !!row.synced }));
+};
+
+// Update the order of an exercise
+export const updateExerciseOrder = async (id: number, newOrder: number): Promise<void> => {
+    await db.runAsync(`UPDATE exercises SET \`order\` = ? WHERE id = ?`, [newOrder, id]);
+
+    // Try to sync if online
+    if (await isOnline()) {
+        const [exercise] = await db.getAllAsync<Exercise>(`SELECT * FROM exercises WHERE id = ?`, [
+            id,
+        ]);
+
+        if (exercise?.supabase_id) {
+            try {
+                const { error } = await supabase
+                    .from("exercises")
+                    .update({ order: newOrder })
+                    .eq("id", exercise.supabase_id);
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error updating exercise order in Supabase:", err);
+            }
+        }
+    }
+};
+
+// Update the order of multiple exercises at once
+export const reorderExercises = async (
+    exerciseOrders: { id: number; order: number }[],
+): Promise<void> => {
+    // Start a transaction
+    await db.execAsync("BEGIN TRANSACTION");
+
+    try {
+        for (const item of exerciseOrders) {
+            await db.runAsync(`UPDATE exercises SET \`order\` = ? WHERE id = ?`, [
+                item.order,
+                item.id,
+            ]);
+        }
+
+        // Commit the transaction
+        await db.execAsync("COMMIT");
+
+        // Try to sync with Supabase if online
+        if (await isOnline()) {
+            for (const item of exerciseOrders) {
+                const [exercise] = await db.getAllAsync<Exercise>(
+                    `SELECT * FROM exercises WHERE id = ?`,
+                    [item.id],
+                );
+
+                if (exercise?.supabase_id) {
+                    try {
+                        await supabase
+                            .from("exercises")
+                            .update({ order: item.order })
+                            .eq("id", exercise.supabase_id);
+                    } catch (err) {
+                        console.error("Error updating exercise order in Supabase:", err);
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        // If anything goes wrong, roll back the transaction
+        await db.execAsync("ROLLBACK");
+        throw error;
+    }
 };
 
 // Delete an exercise
