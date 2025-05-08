@@ -1,8 +1,42 @@
-import { Platform } from "react-native";
+import { useState } from "react";
+import { Alert, Button, Platform, TextInput, View } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
+import * as Linking from "expo-linking";
 import { supabase } from "../lib/supabase";
 
 export function Auth() {
+    const [email, setEmail]       = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading]   = useState(false);
+
+    const signInWithPassword = async () => {
+        setLoading(true);
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        setLoading(false);
+        if (error) Alert.alert('Sign‑in Error', error.message);
+        else console.log('Signed in:', data.user);
+    };
+
+    const signUpWithPassword = async () => {
+        setLoading(true);
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        setLoading(false);
+        if (error) Alert.alert('Sign‑up Error', error.message);
+        else Alert.alert('Welcome!', 'Check your email to confirm your account.');
+    };
+
+    const sendMagicLink = async () => {
+        setLoading(true);
+        const redirectUrl = Linking.createURL('/');  // handle this path in your app
+        const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: redirectUrl },
+        });
+        setLoading(false);
+        if (error) Alert.alert('Error sending magic link', error.message);
+        else Alert.alert('Magic link sent!', 'Check your inbox.');
+    };
+
     if (Platform.OS === "ios")
         return (
             <AppleAuthentication.AppleAuthenticationButton
@@ -44,5 +78,37 @@ export function Auth() {
                 }}
             />
         );
-    return <>{/* Implement Android Auth options. */}</>;
+    return (
+        <View style={{ flex:1, padding:20, justifyContent:'center' }}>
+            <TextInput
+                placeholder="Email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                style={{ marginBottom:12, padding:8, borderWidth:1, borderRadius:4 }}
+                value={email}
+                onChangeText={setEmail}
+            />
+            <TextInput
+                placeholder="Password"
+                secureTextEntry
+                style={{ marginBottom:12, padding:8, borderWidth:1, borderRadius:4 }}
+                value={password}
+                onChangeText={setPassword}
+            />
+
+            <Button
+                title={loading ? 'Please wait…' : 'Sign In with Password'}
+                onPress={signInWithPassword}
+                disabled={loading}
+            />
+            <View style={{ height: 8 }} />
+
+            <Button
+                title="Sign Up with Password"
+                onPress={signUpWithPassword}
+                disabled={loading}
+            />
+            <View style={{ height: 8 }} />
+        </View>
+    );
 }
