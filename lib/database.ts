@@ -31,7 +31,7 @@ export interface Workout {
     name: string;
     start_time: number;
     active: boolean;
-    synced?: boolean;
+    synced: boolean;
     supabase_id?: string;
     is_template: boolean;
 }
@@ -285,6 +285,49 @@ export type WorkoutWithExerciseList = Workout & {
     exerciseList: string[];
 };
 
+export const getAllWorkoutsWithData = async (): Promise<WorkoutWithExerciseList[]> => {
+    // First, get all template workouts
+    const workouts = await db.getAllAsync<Workout>(
+        `SELECT * FROM workouts WHERE is_template = 0 ORDER BY start_time DESC`,
+    );
+
+    const workoutIds = workouts.map((w) => w.id);
+    if (workoutIds.length === 0) return [];
+
+    // Now, get all exercises + type names for these workouts
+    const rows = await db.getAllAsync<{
+        workout_id: number;
+        exercise_name: string;
+    }>(
+        `
+        SELECT e.workout_id, et.name AS exercise_name
+        FROM exercises e
+        JOIN exercise_types et ON e.type = et.id
+        WHERE e.workout_id IN (${workoutIds.map(() => "?").join(",")})
+        ORDER BY e.workout_id, e.\`order\` ASC
+    `,
+        workoutIds,
+    );
+
+    // Group exercise names by workout ID
+    const workoutMap = new Map<number, string[]>();
+    for (const row of rows) {
+        if (!workoutMap.has(row.workout_id)) {
+            workoutMap.set(row.workout_id, []);
+        }
+        workoutMap.get(row.workout_id)!.push(row.exercise_name);
+    }
+    // Sort exercise lists by order property
+
+    // Merge workout metadata with exercise names
+    return workouts.map((w) => ({
+        ...w,
+        active: !!w.active,
+        synced: !!w.synced,
+        exerciseList: workoutMap.get(w.id) ?? [],
+    }));
+};
+
 export const getAllTemplates = async (): Promise<WorkoutWithExerciseList[]> => {
     // First, get all template workouts
     const workouts = await db.getAllAsync<Workout>(
@@ -338,7 +381,7 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
         const user = await supabase.auth.getUser();
         if (!user.data.user) throw new Error("Not authenticated");
 
-        // Sync workout
+        // Sync workout to server
         const { data: workoutData, error: workoutError } = await supabase
             .from("workouts")
             .insert({
@@ -346,6 +389,7 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
                 start_time: new Date(workout.start_time).toISOString(),
                 active: false,
                 user_id: user.data.user.id,
+                is_template: workout.is_template,
             })
             .select("id")
             .single();
@@ -505,6 +549,38 @@ export const updateWorkoutName = async (id: number, name: string): Promise<void>
 };
 
 export const syncUnsyncedWorkouts = async (): Promise<void> => {
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) throw new Error("Not authenticated");
+
+    // Sync workout from server
+    const { data: workoutData, error: workoutError } = await supabase
+        .from("workouts")
+        .select()
+        .eq("user_id", user.data.user.id);
+    if (workoutError) throw workoutError;
+
+    console.log("Server: ", workoutData);
+
+    for(let i = 0; i < workoutData.length; i++) {
+        const workout: Workout = workoutData[i];
+
+        if(!workout.synced) {
+            const result = await db.runAsync(
+                `INSERT INTO workouts (name, start_time, active, synced, is_template, supabase_id)
+            VALUES (?, ?, ?, ?, ?, ?)`,
+                [workout.name, workout.start_time, workout.active, true, workout.is_template, workout.id],
+            );
+
+            // TODO: Check if the result is true first
+            // TODO: Check this error, too
+            const { error } = await supabase
+                .from("workouts")
+                .update({ synced: 1 })
+                .eq("id", workout.id);
+            if (workoutError) throw workoutError;
+        }
+    }
+
     const unsyncedWorkouts = await db.getAllAsync<Workout>(
         `SELECT * FROM workouts WHERE synced = 0`,
     );
