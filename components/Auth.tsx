@@ -25,18 +25,6 @@ export function Auth() {
         else Alert.alert('Welcome!', 'Check your email to confirm your account.');
     };
 
-    const sendMagicLink = async () => {
-        setLoading(true);
-        const redirectUrl = Linking.createURL('/');  // handle this path in your app
-        const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: redirectUrl },
-        });
-        setLoading(false);
-        if (error) Alert.alert('Error sending magic link', error.message);
-        else Alert.alert('Magic link sent!', 'Check your inbox.');
-    };
-
     if (Platform.OS === "ios")
         return (
             <AppleAuthentication.AppleAuthenticationButton

@@ -39,3 +39,6 @@ app-example
 
 .env
 **/.claude/settings.local.json
+
+# build
+android

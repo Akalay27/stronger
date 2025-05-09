@@ -17,7 +17,7 @@ export default function LoginScreen() {
             }
         >
             <ThemedView style={styles.titleContainer}>
-                <ThemedText type="title">Anabolic Window</ThemedText>
+                <ThemedText type="title">Stronger</ThemedText>
                 <HelloWave />
             </ThemedView>
             <ThemedView style={styles.stepContainer}>
