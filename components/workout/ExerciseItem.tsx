@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { StyleSheet, FlatList, View, TouchableOpacity } from "react-native";
-import { Button, Icon } from "@rneui/themed";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Exercise, WorkoutSet } from "@/lib/database";
@@ -85,7 +84,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                             </TouchableOpacity>
                         )}
                     </View>
-                    {!isReorderMode && (
+                    {/* {!isReorderMode && (
                         <Button
                             type="clear"
                             icon={<IconSymbol name="trash" size={22} color="red" />}
@@ -93,7 +92,7 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                             containerStyle={{ marginLeft: "auto" }}
                             disabled={isReorderMode}
                         />
-                    )}
+                    )} */}
                 </View>
 
                 {!isReorderMode && (
@@ -126,14 +125,15 @@ export const ExerciseItem: React.FC<ExerciseItemProps> = ({
                                 onCancel={() => setAddingSet(false)}
                             />
                         ) : (
-                            <Button
-                                onPress={() => setAddingSet(true)}
-                                type="outline"
-                                icon={<IconSymbol name="plus" size={20} color="#1e88e5" />}
-                                iconPosition="left"
-                                buttonStyle={{ borderColor: "#1e88e5", marginTop: 8 }}
-                                titleStyle={{ color: "#1e88e5" }}
-                            />
+                            // <Button
+                            //     onPress={() => setAddingSet(true)}
+                            //     type="outline"
+                            //     icon={<IconSymbol name="plus" size={20} color="#1e88e5" />}
+                            //     iconPosition="left"
+                            //     buttonStyle={{ borderColor: "#1e88e5", marginTop: 8 }}
+                            //     titleStyle={{ color: "#1e88e5" }}
+                            // />
+                            <></>
                         )}
                     </>
                 )}
