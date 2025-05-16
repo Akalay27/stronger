@@ -8,7 +8,6 @@ import Animated from "react-native-reanimated";
 import { PrimaryContainer } from "@/components/PrimaryContainer";
 import { Title } from "@/components/Title";
 import { ThemedText } from "@/components/ThemedText";
-import { Button } from "@rneui/themed";
 import {
     initDatabase,
     getActiveWorkout,

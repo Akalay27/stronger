@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { StyleSheet, TextInput, View } from "react-native";
-import { Button } from "@rneui/themed";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 
@@ -44,7 +43,7 @@ export const AddSetForm: React.FC<AddSetFormProps> = ({ onAddSet, onCancel }) =>
                 </ThemedView>
             </ThemedView>
             <View style={styles.addSetButtons}>
-                <Button
+                {/* <Button
                     title="Cancel"
                     onPress={onCancel}
                     type="outline"
@@ -57,7 +56,7 @@ export const AddSetForm: React.FC<AddSetFormProps> = ({ onAddSet, onCancel }) =>
                     onPress={handleSubmit}
                     disabled={!weight || !reps}
                     containerStyle={{ flex: 1 }}
-                />
+                /> */}
             </View>
         </ThemedView>
     );

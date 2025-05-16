@@ -1,30 +1,25 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { Stack, useRouter } from "expo-router";
 import { useFonts } from "expo-font";
-import { Stack, useRootNavigationState, useRouter } from "expo-router";
-import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import "react-native-reanimated";
+import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { supabase } from "@/lib/supabase";
 import { initDatabase, syncUnsyncedWorkouts } from "@/lib/database";
 import { Session } from "@supabase/supabase-js";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { Button } from "@rneui/themed";
-
-SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
     const router = useRouter();
-    const navState = useRootNavigationState();
+
+    const [session, setSession] = useState<Session | null>(null);
 
     const [loaded] = useFonts({
         SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     });
-
-    const [session, setSession] = useState<Session | null>(null);
 
     useEffect(() => {
         // Initialize database
@@ -50,7 +45,7 @@ export default function RootLayout() {
 
     // 🔁 Redirect after session state changes
     useEffect(() => {
-        if (!navState?.key || !loaded || session === undefined) return;
+        if (!loaded || session === undefined) return;
 
         if (session === null) {
             router.replace("/login");
@@ -61,7 +56,7 @@ export default function RootLayout() {
                 .catch((error) => console.error("Error syncing unsynced workouts:", error));
             router.replace("/(tabs)");
         }
-    }, [navState?.key, loaded, session]);
+    }, [loaded, session]);
 
     if (!loaded) return null;
 

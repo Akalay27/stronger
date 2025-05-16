@@ -10,7 +10,6 @@ import {
     View,
     TouchableOpacity,
 } from "react-native";
-import { Button } from "@rneui/themed";
 import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
 import {
@@ -400,7 +399,7 @@ export default function ActiveWorkoutScreen() {
                             isLast={index === exercises.length - 1}
                         />
 
-                        {index === exercises.length - 1 && !reorderMode && (
+                        {/* {index === exercises.length - 1 && !reorderMode && (
                             <Button
                                 title="Add Exercise"
                                 onPress={handleAddExercise}
@@ -409,7 +408,7 @@ export default function ActiveWorkoutScreen() {
                                 containerStyle={{ margin: 16 }}
                                 disabled={reorderMode}
                             />
-                        )}
+                        )} */}
                     </>
                 )}
                 keyExtractor={(item) => item.id.toString()}
@@ -422,13 +421,13 @@ export default function ActiveWorkoutScreen() {
                                     No exercises added yet. Add your first exercise below!
                                 </ThemedText>
                             </ThemedView>
-                            <Button
+                            {/* <Button
                                 title="Add Exercise"
                                 onPress={handleAddExercise}
                                 icon={<IconSymbol name="plus" size={16} color="white" />}
                                 iconPosition="left"
                                 containerStyle={{ margin: 16 }}
-                            />
+                            /> */}
                         </>
                     ) : null
                 }

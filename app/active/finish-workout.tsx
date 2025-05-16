@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import ConfettiCannon from "react-native-confetti-cannon";
-import { Button } from "@rneui/themed";
+// import ConfettiCannon from "react-native-confetti-cannon";
 import { ExternalLink } from "@/components/ExternalLink";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
@@ -35,7 +34,7 @@ export default function FinishWorkout() {
 
     return (
         <KeyboardAvoidingView style={styles.container}>
-            {showConfetti && <ConfettiCannon count={200} origin={{ x: 0, y: 0 }} fadeOut />}
+            {/* {showConfetti && <ConfettiCannon count={200} origin={{ x: 0, y: 0 }} fadeOut />} */}
 
             <ThemedText type="title">Workout Finished!</ThemedText>
             <ThemedText type="defaultSemiBold">{numberOfWorkouts} workouts completed!</ThemedText>
@@ -46,8 +45,8 @@ export default function FinishWorkout() {
             <VerticalSpacer gap={20} />
 
             <ThemedView style={styles.actionRow}>
-                <Button title="Save Values" onPress={() => handleFinishWorkout(false)} />
-                <Button title="Save as Template" onPress={() => handleFinishWorkout(true)} />
+                {/* <Button title="Save Values" onPress={() => handleFinishWorkout(false)} />
+                <Button title="Save as Template" onPress={() => handleFinishWorkout(true)} /> */}
             </ThemedView>
         </KeyboardAvoidingView>
     );
