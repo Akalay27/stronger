@@ -415,7 +415,7 @@ export default function ActiveWorkoutScreen() {
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
                     !reorderMode ? (
-                        <>
+                        <View>
                             <ThemedView style={styles.emptyContainer}>
                                 <ThemedText>
                                     No exercises added yet. Add your first exercise below!
@@ -428,7 +428,7 @@ export default function ActiveWorkoutScreen() {
                                 iconPosition="left"
                                 containerStyle={{ margin: 16 }}
                             /> */}
-                        </>
+                        </View>
                     ) : null
                 }
             />
