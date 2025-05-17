@@ -16,18 +16,13 @@ import { InfoContainer } from "@/components/ui/InfoContainer";
 import { ProgressPictureGallery } from "@/components/ui/ProgressPictureGallery";
 import { TemplateManagementModal } from "@/components/TemplateManagementModal";
 
-import {
-    initDatabase,
-    getActiveWorkout,
-    createWorkout,
-    Workout,
-    getAllWorkouts,
-    WorkoutWithExerciseList,
-    deleteWorkout,
-    updateWorkoutName,
-    createFromTemplate,
-    getAllWorkoutsWithData,
-} from "@/lib/database";
+import { Workout, WorkoutWithExerciseList } from "@/lib/databases/db-types";
+import { initDatabase } from "@/lib/databases/sqlite/setup";
+
+import { createFromTemplate, createWorkout } from "@/lib/databases/sqlite/workouts/create";
+import { getActiveWorkout, getAllWorkoutsWithData } from "@/lib/databases/sqlite/workouts/read";
+import { updateWorkoutName } from "@/lib/databases/sqlite/workouts/update";
+import { deleteWorkout } from "@/lib/databases/sqlite/workouts/delete";
 
 export default function JournalScreen() {
     // TODO: Add more days when the bottom of the infinite scroll is reached
