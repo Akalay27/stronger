@@ -8,17 +8,15 @@ import Animated from "react-native-reanimated";
 import { PrimaryContainer } from "@/components/PrimaryContainer";
 import { Title } from "@/components/Title";
 import { ThemedText } from "@/components/ThemedText";
-import {
-    initDatabase,
-    getActiveWorkout,
-    createWorkout,
-    Workout,
-    getAllTemplates,
-    WorkoutWithExerciseList,
-    deleteWorkout,
-    updateWorkoutName,
-    createFromTemplate,
-} from "@/lib/database";
+
+import { Workout, WorkoutWithExerciseList } from "@/lib/databases/db-types";
+import { initDatabase } from "@/lib/databases/sqlite/setup";
+
+import { createFromTemplate, createWorkout } from "@/lib/databases/sqlite/workouts/create";
+import { getActiveWorkout, getAllTemplates } from "@/lib/databases/sqlite/workouts/read";
+import { updateWorkoutName } from "@/lib/databases/sqlite/workouts/update";
+import { deleteWorkout } from "@/lib/databases/sqlite/workouts/delete";
+
 import { ThemedView } from "@/components/ThemedView";
 import { VerticalSpacer } from "@/components/VerticalSpacer";
 import { GenerateButton } from "@/components/ui/GenerateButton";

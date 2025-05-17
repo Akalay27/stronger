@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { TextInput, StyleSheet, View, TouchableOpacity, Text, Alert } from "react-native";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Modal } from "./Modal";
-import { WorkoutWithExerciseList, deleteWorkout } from "@/lib/database";
+import { WorkoutWithExerciseList } from "@/lib/databases/db-types";
+
 import { router } from "expo-router";
 
 interface Props {
