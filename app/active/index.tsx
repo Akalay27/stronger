@@ -3,12 +3,10 @@ import {
     StyleSheet,
     FlatList,
     ActivityIndicator,
-    RefreshControl,
     Platform,
     KeyboardAvoidingView,
     Alert,
     View,
-    TouchableOpacity,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
@@ -31,14 +29,9 @@ import { getWorkout } from "@/lib/databases/sqlite/workouts/read";
 import { endWorkout } from "@/lib/databases/sqlite/workouts/update";
 import { deleteWorkout } from "@/lib/databases/sqlite/workouts/delete";
 
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-// No longer need animation libraries for button-based reordering
-
 import CustomHeader from "@/components/workout/CustomHeader";
 import { ThemedText } from "@/components/ThemedText";
 import useElapsedTime from "@/hooks/useElapsedTime";
-import { Ionicons } from "@expo/vector-icons";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import ExerciseItem from "@/components/workout/ExerciseItem";
 import { ExerciseInstructionsModal } from "@/components/workout/ExerciseInstructionsModal";
 

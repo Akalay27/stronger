@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 // import ConfettiCannon from "react-native-confetti-cannon";
-import { ExternalLink } from "@/components/ExternalLink";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 

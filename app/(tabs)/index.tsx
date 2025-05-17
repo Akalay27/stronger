@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { ActivityIndicator, Alert, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { router } from "expo-router";
-import { useFocusEffect, useNavigation } from "expo-router";
+import { useFocusEffect } from "expo-router";
 import Animated from "react-native-reanimated";
 
 import { PrimaryContainer } from "@/components/PrimaryContainer";
 import { Title } from "@/components/Title";
-import { ThemedText } from "@/components/ThemedText";
 
 import { Workout, WorkoutWithExerciseList } from "@/lib/databases/db-types";
 import { initDatabase } from "@/lib/databases/sqlite/setup";
