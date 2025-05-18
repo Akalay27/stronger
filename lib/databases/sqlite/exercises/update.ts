@@ -1,41 +1,11 @@
 import * as SQLite from "expo-sqlite";
-import { supabase } from "@/lib/databases/supabase/supabase";
-import NetInfo from "@react-native-community/netinfo";
 
 import { Exercise } from "@/lib/databases/db-types";
 
+import { supaUpdateExerciseOrder } from "../../supabase/exercises/update";
+
 // Open the database
 const db = SQLite.openDatabaseSync("workouts.db");
-
-// Check if device is online
-const isOnline = async (): Promise<boolean> => {
-    const netInfo = await NetInfo.fetch();
-    return netInfo.isConnected !== false && netInfo.isInternetReachable !== false;
-};
-
-// Update the order of an exercise
-export const updateExerciseOrder = async (id: number, newOrder: number): Promise<void> => {
-    await db.runAsync(`UPDATE exercises SET \`order\` = ? WHERE id = ?`, [newOrder, id]);
-
-    // Try to sync if online
-    if (await isOnline()) {
-        const [exercise] = await db.getAllAsync<Exercise>(`SELECT * FROM exercises WHERE id = ?`, [
-            id,
-        ]);
-
-        if (exercise?.supabase_id) {
-            try {
-                const { error } = await supabase
-                    .from("exercises")
-                    .update({ order: newOrder })
-                    .eq("id", exercise.supabase_id);
-                if (error) throw error;
-            } catch (err) {
-                console.error("Error updating exercise order in Supabase:", err);
-            }
-        }
-    }
-};
 
 // Update the order of multiple exercises at once
 export const reorderExercises = async (
@@ -55,29 +25,32 @@ export const reorderExercises = async (
         // Commit the transaction
         await db.execAsync("COMMIT");
 
-        // Try to sync with Supabase if online
-        if (await isOnline()) {
-            for (const item of exerciseOrders) {
-                const [exercise] = await db.getAllAsync<Exercise>(
-                    `SELECT * FROM exercises WHERE id = ?`,
-                    [item.id],
-                );
+        for (const item of exerciseOrders) {
+            const [exercise] = await db.getAllAsync<Exercise>(
+                `SELECT * FROM exercises WHERE id = ?`,
+                [item.id],
+            );
 
-                if (exercise?.supabase_id) {
-                    try {
-                        await supabase
-                            .from("exercises")
-                            .update({ order: item.order })
-                            .eq("id", exercise.supabase_id);
-                    } catch (err) {
-                        console.error("Error updating exercise order in Supabase:", err);
-                    }
-                }
-            }
+            if (exercise?.supabase_id)
+                await supaUpdateExerciseOrder(exercise.supabase_id, item.order);
+            else
+                console.error("Could not update exercise order in supabase, exercise did not have a supabase ID");
         }
     } catch (error) {
         // If anything goes wrong, roll back the transaction
         await db.execAsync("ROLLBACK");
         throw error;
     }
+};
+
+// Update the order of an exercise
+export const updateExerciseOrder = async (id: number, newOrder: number): Promise<void> => {
+    const [exercise] = await db.getAllAsync<Exercise>(`SELECT * FROM exercises WHERE id = ?`, [id]);
+
+    if (exercise?.supabase_id)
+        await supaUpdateExerciseOrder(exercise.supabase_id, newOrder);
+    else
+        console.error("Could not update exercise order in supabase, exercise did not have a supabase ID");
+
+    await db.runAsync(`UPDATE exercises SET \`order\` = ? WHERE id = ?`, [newOrder, id]);
 };

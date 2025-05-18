@@ -9,7 +9,7 @@ import { useRoute } from "@react-navigation/native";
 import { ThemedView } from "@/components/ThemedView";
 import CustomHeader from "@/components/workout/CustomHeader";
 
-import { getExerciseTypes } from "@/lib/databases/sqlite/misc";
+import { getExerciseTypes } from "@/lib/databases/misc";
 import { ExerciseType } from "@/lib/databases/db-types";
 
 import { addExercises } from "@/lib/databases/sqlite/exercises/create";

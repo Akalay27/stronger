@@ -13,9 +13,9 @@ import { ThemedView } from "@/components/ThemedView";
 
 import { Exercise, ExerciseType, Workout, WorkoutSet } from "@/lib/databases/db-types";
 import { initDatabase } from "@/lib/databases/sqlite/setup";
-import { syncWorkoutById } from "@/lib/databases/sqlite/misc";
+import { syncWorkoutById } from "@/lib/databases/misc";
 
-import { getExerciseTypeById } from "@/lib/databases/sqlite/misc";
+import { getExerciseTypeById } from "@/lib/databases/misc";
 import { getExercisesByWorkout } from "@/lib/databases/sqlite/exercises/read";
 import { reorderExercises } from "@/lib/databases/sqlite/exercises/update";
 import { deleteExercise } from "@/lib/databases/sqlite/exercises/delete";

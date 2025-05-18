@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import * as SplashScreen from "expo-splash-screen";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { supabase } from "@/lib/databases/supabase/supabase";
+import { supabase } from "@/lib/databases/supabase/setup";
 
 import { initDatabase } from "@/lib/databases/sqlite/setup";
-import { syncUnsyncedWorkouts } from "@/lib/databases/sqlite/misc";
+import { syncUnsyncedWorkouts } from "@/lib/databases/misc";
 
 import { Session } from "@supabase/supabase-js";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
