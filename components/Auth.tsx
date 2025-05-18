@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Button, Platform, TextInput, View } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
+
 import { supabase } from "../lib/databases/supabase/setup";
 
 export function Auth() {

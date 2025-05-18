@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from "react";
 import {
-    View,
     FlatList,
     TextInput,
-    TouchableOpacity,
     StyleSheet,
-    Text,
     KeyboardAvoidingView,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
