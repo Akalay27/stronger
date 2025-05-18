@@ -1,5 +1,6 @@
 import * as SQLite from "expo-sqlite";
-import { supabase } from "@/lib/databases/supabase/supabase";
+import NetInfo from "@react-native-community/netinfo";
+import { supabase } from "@/lib/databases/supabase/setup";
 
 import { ExerciseType, Workout } from "@/lib/databases/db-types";
 
@@ -7,10 +8,21 @@ import { getExercisesByWorkout } from "@/lib/databases/sqlite/exercises/read";
 
 import { getSetsByExercise } from "@/lib/databases/sqlite/sets/read";
 
+// Check if device is online
+const isOnline = async (): Promise<boolean> => {
+    const netInfo = await NetInfo.fetch();
+    return netInfo.isConnected !== false && netInfo.isInternetReachable !== false;
+};
+
 // Open the database
 const db = SQLite.openDatabaseSync("workouts.db");
 
 export const syncWorkoutById = async (workoutId: number): Promise<void> => {
+    if(!(await isOnline())) {
+        console.error("Could not sync workout by ID in Supabase, device is offline");
+        return;
+    }
+
     const [workout] = await db.getAllAsync<Workout>(`SELECT * FROM workouts WHERE id = ?`, [
         workoutId,
     ]);
@@ -88,6 +100,11 @@ export const syncWorkoutById = async (workoutId: number): Promise<void> => {
 };
 
 export const syncUnsyncedWorkouts = async (): Promise<void> => {
+    if(!(await isOnline())) {
+        console.error("Could not sync unsynced workouts in Supabase, device is offline");
+        return;
+    }
+
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error("Not authenticated");
 
