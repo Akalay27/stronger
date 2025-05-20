@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { Alert, Button, Platform, TextInput, View } from "react-native";
 import * as AppleAuthentication from "expo-apple-authentication";
-import * as Linking from "expo-linking";
-import { supabase } from "../lib/supabase";
+
+import { supabase } from "../lib/databases/supabase/setup";
 
 export function Auth() {
     const [email, setEmail]       = useState('');

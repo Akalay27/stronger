@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import { WorkoutSet } from "@/lib/database";
+import { WorkoutSet } from "@/lib/databases/db-types";
 
 interface SetItemProps {
     set: WorkoutSet;

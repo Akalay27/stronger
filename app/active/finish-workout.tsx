@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 // import ConfettiCannon from "react-native-confetti-cannon";
-import { ExternalLink } from "@/components/ExternalLink";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { endWorkout, getWorkoutCount } from "@/lib/database";
+
+import { getWorkoutCount } from "@/lib/databases/sqlite/workouts/read";
+import { endWorkout } from "@/lib/databases/sqlite/workouts/update";
+
 import { useRoute } from "@react-navigation/native";
 import { router } from "expo-router";
 import { KeyboardAvoidingView, StyleSheet, View } from "react-native";

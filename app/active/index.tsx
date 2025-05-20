@@ -3,46 +3,35 @@ import {
     StyleSheet,
     FlatList,
     ActivityIndicator,
-    RefreshControl,
     Platform,
     KeyboardAvoidingView,
     Alert,
     View,
-    TouchableOpacity,
 } from "react-native";
 import { useFocusEffect, useLocalSearchParams, router } from "expo-router";
 import { ThemedView } from "@/components/ThemedView";
-import {
-    initDatabase,
-    getActiveWorkout,
-    getExercisesByWorkout,
-    getSetsByExercise,
-    addExercise,
-    addSet,
-    updateSetCompletion,
-    deleteExercise,
-    deleteSet,
-    endWorkout,
-    Exercise,
-    WorkoutSet,
-    Workout,
-    ExerciseType,
-    getExerciseTypes,
-    getExerciseTypeById,
-    updateSet,
-    deleteWorkout,
-    getWorkout,
-    syncWorkoutById,
-    reorderExercises,
-} from "@/lib/database";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-// No longer need animation libraries for button-based reordering
+
+import { Exercise, ExerciseType, Workout, WorkoutSet } from "@/lib/databases/db-types";
+import { initDatabase } from "@/lib/databases/sqlite/setup";
+import { syncWorkoutById } from "@/lib/databases/misc";
+
+import { getExerciseTypeById } from "@/lib/databases/misc";
+import { getExercisesByWorkout } from "@/lib/databases/sqlite/exercises/read";
+import { reorderExercises } from "@/lib/databases/sqlite/exercises/update";
+import { deleteExercise } from "@/lib/databases/sqlite/exercises/delete";
+
+import { addSet } from "@/lib/databases/sqlite/sets/create";
+import { getSetsByExercise } from "@/lib/databases/sqlite/sets/read";
+import { updateSet, updateSetCompletion } from "@/lib/databases/sqlite/sets/update";
+import { deleteSet } from "@/lib/databases/sqlite/sets/delete";
+
+import { getWorkout } from "@/lib/databases/sqlite/workouts/read";
+import { endWorkout } from "@/lib/databases/sqlite/workouts/update";
+import { deleteWorkout } from "@/lib/databases/sqlite/workouts/delete";
 
 import CustomHeader from "@/components/workout/CustomHeader";
 import { ThemedText } from "@/components/ThemedText";
 import useElapsedTime from "@/hooks/useElapsedTime";
-import { Ionicons } from "@expo/vector-icons";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import ExerciseItem from "@/components/workout/ExerciseItem";
 import { ExerciseInstructionsModal } from "@/components/workout/ExerciseInstructionsModal";
 

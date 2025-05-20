@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { StyleSheet, FlatList, View, TouchableOpacity } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Exercise, WorkoutSet } from "@/lib/database";
 import SetItem from "./SetItem";
 import AddSetForm from "./AddSetForm";
 import { IconSymbol } from "../ui/IconSymbol";

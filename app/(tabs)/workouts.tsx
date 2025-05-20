@@ -13,13 +13,13 @@ import { GenerateButton } from "@/components/ui/GenerateButton";
 import { InfoContainer } from "@/components/ui/InfoContainer";
 import { StartButton } from "@/components/ui/StartButton";
 import { TemplateManagementModal } from "@/components/TemplateManagementModal";
-import { 
-    getAllTemplates, 
-    WorkoutWithExerciseList, 
-    updateWorkoutName, 
-    deleteWorkout,
-    createFromTemplate
-} from "@/lib/database";
+
+import { WorkoutWithExerciseList } from "@/lib/databases/db-types";
+
+import { createFromTemplate } from "@/lib/databases/sqlite/workouts/create";
+import { getAllTemplates } from "@/lib/databases/sqlite/workouts/read";
+import { updateWorkoutName } from "@/lib/databases/sqlite/workouts/update";
+import { deleteWorkout } from "@/lib/databases/sqlite/workouts/delete";
 
 export default function WorkoutsScreen() {
     const insets = useSafeAreaInsets();

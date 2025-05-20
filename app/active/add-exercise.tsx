@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
-    View,
     FlatList,
     TextInput,
-    TouchableOpacity,
     StyleSheet,
-    Text,
     KeyboardAvoidingView,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { ThemedView } from "@/components/ThemedView";
 import CustomHeader from "@/components/workout/CustomHeader";
-import { addExercises, ExerciseType, getExerciseTypes } from "@/lib/database";
+
+import { getExerciseTypes } from "@/lib/databases/misc";
+import { ExerciseType } from "@/lib/databases/db-types";
+
+import { addExercises } from "@/lib/databases/sqlite/exercises/create";
+
 import { ExerciseInstructionsModal } from "@/components/workout/ExerciseInstructionsModal";
 import { router } from "expo-router";
 import { ExerciseTypeListItem } from "@/components/workout/ExerciseTypeListItem";

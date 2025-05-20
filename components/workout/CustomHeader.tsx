@@ -3,7 +3,6 @@ import { StyleSheet, View, TouchableOpacity, Platform, StatusBar } from "react-n
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { IconSymbol } from "../ui/IconSymbol";
 

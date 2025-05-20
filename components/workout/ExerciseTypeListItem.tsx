@@ -1,7 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { ExerciseType } from "@/lib/database";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { ExerciseType } from "@/lib/databases/db-types";
 import { IconSymbol } from "../ui/IconSymbol";
 
 interface ExerciseTypeListItemProps {
